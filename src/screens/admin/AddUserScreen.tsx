@@ -7,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -19,6 +21,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { UserRole } from '../../types';
+import { AnyAction } from 'redux';
 
 type AddUserScreenNavigationProp = StackNavigationProp<AdminStackParamList, 'AddUser'>;
 
@@ -46,6 +49,9 @@ const AddUserScreen = () => {
     height: '',
     weight: '',
   });
+
+  // Calculate top padding for Android if SafeAreaView inset is 0
+  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
 
   const validateForm = () => {
     let isValid = true;
@@ -124,10 +130,10 @@ const AddUserScreen = () => {
           bodyType,
           fitnessGoal,
           role,
-        }));
+        }) as unknown as AnyAction);
         
         // Refresh the user list
-        await dispatch(fetchAllUsers());
+        await dispatch(fetchAllUsers() as unknown as AnyAction);
         
         Alert.alert(
           'Success',
@@ -143,7 +149,7 @@ const AddUserScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Add New User</Text>
         <Text style={styles.subtitle}>Enter user details to create a new account</Text>

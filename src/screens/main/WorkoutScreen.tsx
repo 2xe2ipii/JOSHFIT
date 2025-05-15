@@ -9,10 +9,12 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { fetchWorkoutPlan, updateExerciseCompletion } from '../../redux/workoutSlice';
-import { RootState } from '../../redux/store';
+import { RootState, useAppDispatch } from '../../redux/store';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
@@ -20,34 +22,37 @@ import FloatingUtilityTool from '../../components/FloatingUtilityTool';
 import { Exercise } from '../../types';
 
 const WorkoutScreen = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const { workoutPlan, isLoading, error } = useSelector((state: RootState) => state.workout);
   const [totalExercises, setTotalExercises] = useState(0);
   const [completedExercises, setCompletedExercises] = useState(0);
-  
+
+  // Calculate top padding for Android if SafeAreaView inset is 0
+  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
+
   useEffect(() => {
     if (user) {
       dispatch(fetchWorkoutPlan(user.id));
     }
   }, [dispatch, user]);
-  
+
   useEffect(() => {
     if (workoutPlan) {
       setTotalExercises(workoutPlan.exercises.length);
       setCompletedExercises(workoutPlan.exercises.filter(ex => ex.completed).length);
     }
   }, [workoutPlan]);
-  
+
   const handleToggleExercise = (exerciseId: string, completed: boolean) => {
     dispatch(updateExerciseCompletion({ exerciseId, completed }));
   };
-  
+
   const calculateProgress = () => {
     if (totalExercises === 0) return 0;
     return (completedExercises / totalExercises) * 100;
   };
-  
+
   const renderExerciseItem = ({ item }: { item: Exercise }) => {
     return (
       <Card style={styles.exerciseCard}>
@@ -70,18 +75,18 @@ const WorkoutScreen = () => {
             )}
           </TouchableOpacity>
         </View>
-        
+
         <View style={styles.exerciseDetails}>
           <View style={styles.exerciseDetailItem}>
             <Ionicons name="repeat-outline" size={16} color={COLORS.primary} />
             <Text style={styles.detailText}>{item.sets} sets</Text>
           </View>
-          
+
           <View style={styles.exerciseDetailItem}>
             <Ionicons name="fitness-outline" size={16} color={COLORS.primary} />
             <Text style={styles.detailText}>{item.reps} reps</Text>
           </View>
-          
+
           <View style={styles.exerciseDetailItem}>
             <Ionicons name="time-outline" size={16} color={COLORS.primary} />
             <Text style={styles.detailText}>{item.restTime}s rest</Text>
@@ -90,7 +95,7 @@ const WorkoutScreen = () => {
       </Card>
     );
   };
-  
+
   const renderEmptyState = () => {
     return (
       <View style={styles.emptyContainer}>
@@ -121,10 +126,10 @@ const WorkoutScreen = () => {
       </View>
     );
   };
-  
+
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>Loading your workout plan...</Text>
@@ -132,10 +137,10 @@ const WorkoutScreen = () => {
       </SafeAreaView>
     );
   }
-  
+
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
           <Text style={styles.errorTitle}>Something went wrong</Text>
@@ -154,9 +159,9 @@ const WorkoutScreen = () => {
       </SafeAreaView>
     );
   }
-  
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <View style={styles.header}>
         <Text style={styles.title}>Today's Workout</Text>
         {workoutPlan && (
@@ -165,7 +170,7 @@ const WorkoutScreen = () => {
           </TouchableOpacity>
         )}
       </View>
-      
+
       {workoutPlan ? (
         <>
           <View style={styles.progressSection}>
@@ -189,7 +194,7 @@ const WorkoutScreen = () => {
               </Text>
             </View>
           </View>
-          
+
           <FlatList
             data={workoutPlan.exercises}
             renderItem={renderExerciseItem}
@@ -197,7 +202,7 @@ const WorkoutScreen = () => {
             contentContainerStyle={styles.exerciseList}
             showsVerticalScrollIndicator={false}
           />
-          
+
           {workoutPlan.completed ? (
             <View style={styles.completedContainer}>
               <View style={styles.completedBadge}>
@@ -229,7 +234,7 @@ const WorkoutScreen = () => {
       ) : (
         renderEmptyState()
       )}
-      
+
       <FloatingUtilityTool />
     </SafeAreaView>
   );
@@ -363,6 +368,36 @@ const styles = StyleSheet.create({
     color: COLORS.darkGray,
     marginLeft: SIZES.xs,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SIZES.xl,
+  },
+  emptyTitle: {
+    fontSize: FONTS.h3,
+    fontWeight: '600',
+    color: COLORS.black,
+    marginTop: SIZES.lg,
+    marginBottom: SIZES.sm,
+  },
+  emptyDescription: {
+    fontSize: FONTS.body,
+    color: COLORS.darkGray,
+    textAlign: 'center',
+    marginBottom: SIZES.xl,
+  },
+  generateButton: {
+    paddingVertical: SIZES.md,
+    paddingHorizontal: SIZES.xl,
+    backgroundColor: COLORS.primary,
+    borderRadius: SIZES.borderRadiusMd,
+  },
+  generateButtonText: {
+    fontSize: FONTS.body,
+    fontWeight: '600',
+    color: COLORS.white,
+  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -400,36 +435,6 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.borderRadiusMd,
   },
   retryButtonText: {
-    fontSize: FONTS.body,
-    fontWeight: '600',
-    color: COLORS.white,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SIZES.xl,
-  },
-  emptyTitle: {
-    fontSize: FONTS.h3,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginTop: SIZES.lg,
-    marginBottom: SIZES.sm,
-  },
-  emptyDescription: {
-    fontSize: FONTS.body,
-    color: COLORS.darkGray,
-    textAlign: 'center',
-    marginBottom: SIZES.xl,
-  },
-  generateButton: {
-    paddingVertical: SIZES.md,
-    paddingHorizontal: SIZES.xl,
-    backgroundColor: COLORS.primary,
-    borderRadius: SIZES.borderRadiusMd,
-  },
-  generateButtonText: {
     fontSize: FONTS.body,
     fontWeight: '600',
     color: COLORS.white,

@@ -7,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { updateUserProfile, logout } from '../../redux/authSlice';
@@ -122,10 +124,13 @@ const ProfileScreen = () => {
       </View>
     );
   };
+
+  // Calculate top padding for Android if SafeAreaView inset is 0
+  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
   
   if (!user) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>User not found</Text>
           <Button
@@ -139,7 +144,7 @@ const ProfileScreen = () => {
   }
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={styles.title}>Profile</Text>

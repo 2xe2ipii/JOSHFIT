@@ -3,11 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AdminStackParamList } from '../../navigation/types';
@@ -19,6 +21,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import { UserRole } from '../../types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AnyAction } from 'redux';
 
 type UserDetailScreenRouteProp = RouteProp<AdminStackParamList, 'UserDetail'>;
 type UserDetailScreenNavigationProp = StackNavigationProp<AdminStackParamList, 'UserDetail'>;
@@ -27,12 +31,16 @@ const UserDetailScreen = () => {
   const route = useRoute<UserDetailScreenRouteProp>();
   const navigation = useNavigation<UserDetailScreenNavigationProp>();
   const dispatch = useDispatch();
+  const insets = useSafeAreaInsets();
   
   const { userId } = route.params;
   const { users, isLoading } = useSelector((state: RootState) => state.admin);
   
   const user = users.find(u => u.id === userId);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+
+  // Calculate top padding for Android if SafeAreaView inset is 0
+  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
   
   useEffect(() => {
     if (user) {
@@ -53,7 +61,7 @@ const UserDetailScreen = () => {
           {
             text: 'Update',
             onPress: () => {
-              dispatch(updateUserRole({ userId, role: selectedRole }));
+              dispatch(updateUserRole({ userId, role: selectedRole }) as unknown as AnyAction);
               Alert.alert('Success', 'User role updated successfully');
             },
           },
@@ -76,7 +84,7 @@ const UserDetailScreen = () => {
             text: 'Delete',
             style: 'destructive',
             onPress: () => {
-              dispatch(deleteUser(userId));
+              dispatch(deleteUser(userId) as unknown as AnyAction);
               navigation.goBack();
             },
           },
@@ -87,7 +95,7 @@ const UserDetailScreen = () => {
   
   if (!user) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]} edges={["top"]}>
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>User not found</Text>
           <Button
@@ -101,7 +109,7 @@ const UserDetailScreen = () => {
   }
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]} edges={["top"]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.userHeader}>
           <View style={styles.avatarContainer}>

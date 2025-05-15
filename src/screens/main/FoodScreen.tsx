@@ -9,6 +9,8 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { fetchFoodLogs, addFoodLog, deleteFoodLog } from '../../redux/foodLogSlice';
@@ -28,6 +30,9 @@ const FoodScreen = () => {
   
   // Check if user has access to this premium feature
   const isPremium = user?.role === UserRole.PREMIUM || user?.role === UserRole.ADMIN;
+
+  // Calculate top padding for Android if SafeAreaView inset is 0
+  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
   
   useEffect(() => {
     if (user && isPremium) {
@@ -129,14 +134,14 @@ const FoodScreen = () => {
   
   if (!isPremium) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
         {renderAccessDenied()}
       </SafeAreaView>
     );
   }
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <View style={styles.header}>
         <Text style={styles.title}>Food Log</Text>
         <View style={styles.calorieCounter}>

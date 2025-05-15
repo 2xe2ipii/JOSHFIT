@@ -7,6 +7,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { fetchDashboardData } from '../../redux/dashboardSlice';
@@ -32,6 +34,9 @@ const DashboardScreen = () => {
   
   // Check if user is premium or admin
   const isPremium = user?.role === UserRole.PREMIUM || user?.role === UserRole.ADMIN;
+  
+  // Calculate top padding for Android if SafeAreaView inset is 0
+  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
   
   useEffect(() => {
     if (user) {
@@ -199,7 +204,7 @@ const DashboardScreen = () => {
   };
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View>
