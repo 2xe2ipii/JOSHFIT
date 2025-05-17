@@ -31,6 +31,7 @@ const ProfileScreen = () => {
   const [weight, setWeight] = useState(user?.weight.toString() || '');
   const [bodyType, setBodyType] = useState(user?.bodyType || 'mesomorph');
   const [fitnessGoal, setFitnessGoal] = useState(user?.fitnessGoal || 'maintain');
+  const { darkMode } = useSelector((state: RootState) => state.settings);
   
   const calculateBMI = () => {
     if (!user) return '-';
@@ -144,16 +145,26 @@ const ProfileScreen = () => {
   }
   
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
+    <SafeAreaView style={[
+      styles.container,
+      darkMode && styles.darkContainer,
+      { paddingTop: topPadding }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
+          <Text style={[
+            styles.title,
+            darkMode && styles.darkText
+            ]}>Profile</Text>
           {!isEditing && (
             <TouchableOpacity
-              style={styles.editButton}
+              style={[
+                styles.editButton
+              ]}
               onPress={() => setIsEditing(true)}
             >
-              <Ionicons name="create-outline" size={24} color={COLORS.primary} />
+              <Ionicons 
+              name="create-outline" 
+              size={24} color={COLORS.primary} />
             </TouchableOpacity>
           )}
         </View>
@@ -171,24 +182,45 @@ const ProfileScreen = () => {
               containerStyle={styles.nicknameInput}
             />
           ) : (
-            <Text style={styles.userName}>{user.nickname}</Text>
+            <Text style={[
+              styles.userName,
+              darkMode && styles.darkText
+            ]}>{user.nickname}</Text>
           )}
-          <Text style={styles.userEmail}>{user.email}</Text>
+          <Text style={[
+            styles.userEmail,
+            darkMode && styles.darkDescription
+            ]}>{user.email}</Text>
           {renderUserRoleBadge()}
         </View>
         
-        <Card style={styles.infoCard}>
-          <Text style={styles.sectionTitle}>Personal Information</Text>
+        <Card style={[
+          styles.infoCard,
+          darkMode && styles.darkCard
+          ]}>
+          <Text style={[
+            styles.sectionTitle,
+            darkMode && styles.darkText
+            ]}>Personal Information</Text>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Gender</Text>
-            <Text style={styles.infoValue}>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+              ]}>Gender</Text>
+            <Text style={[
+              styles.infoValue,
+              darkMode && styles.darkDescription
+              ]}>
               {user.gender === 'male' ? 'Male' : user.gender === 'female' ? 'Female' : 'Other'}
             </Text>
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Height</Text>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+              ]}>Height</Text>
             {isEditing ? (
               <Input
                 value={height}
@@ -198,12 +230,18 @@ const ProfileScreen = () => {
                 rightIcon={<Text style={styles.inputUnit}>cm</Text>}
               />
             ) : (
-              <Text style={styles.infoValue}>{user.height} cm</Text>
+              <Text style={[
+                styles.infoValue,
+                darkMode && styles.darkDescription
+              ]}>{user.height} cm</Text>
             )}
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Weight</Text>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+              ]}>Weight</Text>
             {isEditing ? (
               <Input
                 value={weight}
@@ -213,19 +251,31 @@ const ProfileScreen = () => {
                 rightIcon={<Text style={styles.inputUnit}>kg</Text>}
               />
             ) : (
-              <Text style={styles.infoValue}>{user.weight} kg</Text>
+              <Text style={[
+                styles.infoValue,
+                darkMode && styles.darkDescription
+              ]}>{user.weight} kg</Text>
             )}
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>BMI</Text>
-            <Text style={styles.infoValue}>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+              ]}>BMI</Text>
+            <Text style={[
+              styles.infoValue,
+              darkMode && styles.darkDescription
+              ]}>
               {calculateBMI()} ({getBMICategory()})
             </Text>
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Body Type</Text>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+            ]}>Body Type</Text>
             {isEditing ? (
               <View style={styles.optionsRow}>
                 <TouchableOpacity
@@ -278,14 +328,20 @@ const ProfileScreen = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <Text style={styles.infoValue}>
+              <Text style={[
+                styles.infoValue,
+                darkMode && styles.darkDescription
+                ]}>
                 {user.bodyType.charAt(0).toUpperCase() + user.bodyType.slice(1)}
               </Text>
             )}
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Fitness Goal</Text>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+              ]}>Fitness Goal</Text>
             {isEditing ? (
               <View style={styles.goalOptions}>
                 <TouchableOpacity
@@ -354,7 +410,10 @@ const ProfileScreen = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <Text style={styles.infoValue}>
+              <Text style={[
+                styles.infoValue,
+                darkMode && styles.darkDescription
+                ]}>
                 {user.fitnessGoal === 'lose_weight'
                   ? 'Lose Weight'
                   : user.fitnessGoal === 'gain_muscle'
@@ -367,8 +426,15 @@ const ProfileScreen = () => {
           </View>
           
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Member Since</Text>
-            <Text style={styles.infoValue}>
+            <Text style={[
+              styles.infoLabel,
+              darkMode && styles.darkText
+              ]}>Member Since</Text>
+
+            <Text style={[
+              styles.infoValue,
+              darkMode && styles.darkDescription
+              ]}>
               {new Date(user.createdAt).toLocaleDateString()}
             </Text>
           </View>
@@ -419,6 +485,18 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SIZES.md,
+  },
+    darkContainer: {
+    backgroundColor: COLORS.darkBackground,
+  },
+  darkCard: {
+    backgroundColor: COLORS.darkSurface,
+  },
+  darkDescription: {
+    color: COLORS.gray,
+  },
+  darkText: {
+    color: COLORS.darkText,
   },
   header: {
     flexDirection: 'row',

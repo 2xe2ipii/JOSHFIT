@@ -20,6 +20,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
 import FloatingUtilityTool from '../../components/FloatingUtilityTool';
 import { Exercise } from '../../types';
+import { State } from 'react-native-gesture-handler';
 
 const WorkoutScreen = () => {
   const dispatch = useAppDispatch();
@@ -27,6 +28,7 @@ const WorkoutScreen = () => {
   const { workoutPlan, isLoading, error } = useSelector((state: RootState) => state.workout);
   const [totalExercises, setTotalExercises] = useState(0);
   const [completedExercises, setCompletedExercises] = useState(0);
+  const { darkMode } = useSelector((state: RootState) => state.settings);
 
   // Calculate top padding for Android if SafeAreaView inset is 0
   const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
@@ -55,17 +57,27 @@ const WorkoutScreen = () => {
 
   const renderExerciseItem = ({ item }: { item: Exercise }) => {
     return (
-      <Card style={styles.exerciseCard}>
+      <Card style={[
+        styles.exerciseCard,
+        darkMode && styles.darkCard
+      ]}>
         <View style={styles.exerciseHeader}>
           <View style={styles.exerciseTitleContainer}>
-            <Text style={styles.exerciseName}>{item.name}</Text>
-            <Text style={styles.exerciseDescription}>
+            <Text style={[
+              styles.exerciseName,
+              darkMode && styles.darkText
+              ]}>{item.name}</Text>
+            <Text style={[
+              styles.exerciseDescription,
+              darkMode && styles.darkDescription
+            ]}>
               {item.description}
             </Text>
           </View>
           <TouchableOpacity
             style={[
               styles.checkboxContainer,
+              darkMode && { backgroundColor: COLORS.darkSurface },
               item.completed && styles.checkboxChecked,
             ]}
             onPress={() => handleToggleExercise(item.id, !item.completed)}
@@ -129,10 +141,16 @@ const WorkoutScreen = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
-        <View style={styles.loadingContainer}>
+      <SafeAreaView style={[styles.container,{ paddingTop: topPadding }]}>
+        <View style={[
+          styles.loadingContainer,
+          darkMode && styles.darkContainer
+          ]}>
           <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading your workout plan...</Text>
+          <Text style={[
+            styles.loadingText,
+            darkMode && styles.darkText
+          ]}>Loading your workout plan...</Text>
         </View>
       </SafeAreaView>
     );
@@ -161,22 +179,31 @@ const WorkoutScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
+    <SafeAreaView style={[
+    styles.container, 
+    darkMode && styles.darkContainer,
+    { paddingTop: topPadding }
+    ]}>
+
       <View style={styles.header}>
-        <Text style={styles.title}>Today's Workout</Text>
-        {workoutPlan && (
-          <TouchableOpacity style={styles.shareButton}>
-            <Ionicons name="share-social-outline" size={24} color={COLORS.primary} />
-          </TouchableOpacity>
-        )}
+        <Text style={[
+        styles.title,
+        darkMode && styles.darkText
+        ]}>Today's Workout</Text>
       </View>
 
       {workoutPlan ? (
         <>
           <View style={styles.progressSection}>
             <View style={styles.progressInfo}>
-              <Text style={styles.progressTitle}>Your Progress</Text>
-              <Text style={styles.progressStats}>
+              <Text style={[
+              styles.progressTitle,
+              darkMode && styles.darkText
+              ]}>Your Progress</Text>
+              <Text style={[
+              styles.progressStats,
+              darkMode && styles.darkDescription
+              ]}>
                 {completedExercises} of {totalExercises} exercises completed
               </Text>
             </View>
@@ -257,15 +284,27 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.black,
   },
-  shareButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 20,
-    backgroundColor: COLORS.white,
-    ...SHADOWS.small,
+  darkContainer: {
+    backgroundColor: COLORS.darkBackground,
   },
+  darkCard: {
+    backgroundColor: COLORS.darkSurface,
+  },
+  darkDescription: {
+    color: COLORS.gray,
+  },
+  darkText: {
+    color: COLORS.darkText,
+  },
+//  shareButton: {
+//    width: 40,
+//    height: 40,
+//    justifyContent: 'center',
+//   alignItems: 'center',
+//    borderRadius: 20,
+//    backgroundColor: COLORS.white,
+//    ...SHADOWS.small,
+//  },
   progressSection: {
     marginHorizontal: SIZES.xl,
     marginBottom: SIZES.lg,
@@ -345,7 +384,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
+    backgroundColor:COLORS.white,
   },
   checkboxChecked: {
     backgroundColor: COLORS.primary,

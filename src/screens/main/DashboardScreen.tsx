@@ -75,20 +75,20 @@ const DashboardScreen = () => {
     if (!weather) return null;
     
     return (
-      <Card style={styles.weatherCard}>
+      <Card style={[styles.weatherCard, darkMode && styles.darkCard]}>
         <View style={styles.weatherContent}>
           <View style={styles.weatherMain}>
-            <Text style={styles.temperature}>{weather.temperature}°C</Text>
-            <Text style={styles.weatherCondition}>{weather.condition}</Text>
+            <Text style={[styles.temperature, darkMode && styles.darkText]}>{weather.temperature}°C</Text>
+            <Text style={[styles.weatherCondition, darkMode && styles.darkDescription]}>{weather.condition}</Text>
           </View>
           <View style={styles.weatherDetails}>
             <View style={styles.weatherDetail}>
               <Ionicons name="water-outline" size={16} color={COLORS.primary} />
-              <Text style={styles.weatherDetailText}>{weather.humidity}%</Text>
+              <Text style={[styles.weatherDetailText, darkMode && styles.darkDescription]}>{weather.humidity}%</Text>
             </View>
             <View style={styles.weatherDetail}>
               <Ionicons name="speedometer-outline" size={16} color={COLORS.primary} />
-              <Text style={styles.weatherDetailText}>{weather.windSpeed} km/h</Text>
+              <Text style={[styles.weatherDetailText, darkMode && styles.darkDescription]}>{weather.windSpeed} km/h</Text>
             </View>
           </View>
         </View>
@@ -107,9 +107,9 @@ const DashboardScreen = () => {
     const progress = calculateCalorieProgress();
     
     return (
-      <Card style={styles.calorieCard}>
+      <Card style={[styles.calorieCard, darkMode && styles.darkCard]}>
         <View style={styles.calorieHeader}>
-          <Text style={styles.cardTitle}>Calories</Text>
+          <Text style={ [styles.cardTitle, darkMode && styles.darkText] }>Calories</Text>
           <TouchableOpacity>
             <Ionicons name="information-circle-outline" size={20} color={COLORS.darkGray} />
           </TouchableOpacity>
@@ -121,8 +121,8 @@ const DashboardScreen = () => {
               <Ionicons name="flame-outline" size={24} color={COLORS.white} />
             </View>
             <View>
-              <Text style={styles.calorieValue}>{caloriesBurned}</Text>
-              <Text style={styles.calorieLabel}>Burned</Text>
+              <Text style={[styles.calorieValue, darkMode && styles.darkText]}>{caloriesBurned}</Text>
+              <Text style={[styles.calorieLabel, darkMode && styles.darkText]}>Burned</Text>
             </View>
           </View>
           
@@ -146,7 +146,7 @@ const DashboardScreen = () => {
               <Text style={styles.calorieValue}>
                 {isPremium ? caloriesBurned - caloriesConsumed : '-'}
               </Text>
-              <Text style={styles.calorieLabel}>Net</Text>
+              <Text style={[styles.calorieLabel, darkMode && styles.darkDescription]}>Net</Text>
             </View>
           </View>
         </View>
@@ -160,7 +160,7 @@ const DashboardScreen = () => {
               ]}
             />
           </View>
-          <Text style={styles.progressText}>
+          <Text style={[styles.progressText, darkMode && styles.darkDescription]}>
             {progress.toFixed(0)}% of daily goal
           </Text>
         </View>
@@ -170,9 +170,9 @@ const DashboardScreen = () => {
   
   const renderStepsInfo = () => {
     return (
-      <Card style={styles.stepsCard}>
+      <Card style={[styles.stepsCard, darkMode && styles.darkCard]}>
         <View style={styles.stepsHeader}>
-          <Text style={styles.cardTitle}>Today's Steps</Text>
+          <Text style={[styles.cardTitle, darkMode && styles.darkText]}>Today's Steps</Text>
           <Text style={styles.stepCount}>{steps.toLocaleString()}</Text>
         </View>
         
@@ -204,21 +204,21 @@ const DashboardScreen = () => {
   };
   
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <SafeAreaView style={[styles.container, darkMode && styles.darkContainer, { paddingTop: topPadding }]}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, darkMode && styles.darkContainer]}>
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>{greeting},</Text>
-            <Text style={styles.userName}>{user?.nickname || 'User'}</Text>
+            <Text style={[styles.userName, darkMode && styles.darkText]}>{user?.nickname || 'User'}</Text>
           </View>
           
           <View style={styles.headerRight}>
-            <Text style={styles.currentTime}>{currentTime}</Text>
+            <Text style={[styles.currentTime, darkMode && styles.darkText]}>{currentTime}</Text>
             <TouchableOpacity
-              style={styles.settingsButton}
+              style={[styles.settingsButton]}
               onPress={() => navigation.navigate('Settings' as never)}
             >
-              <Ionicons name="settings-outline" size={24} color={COLORS.black} />
+              <Ionicons name="settings-outline" size={24} color={darkMode ? COLORS.lightGray : COLORS.black} />
             </TouchableOpacity>
           </View>
         </View>
@@ -238,6 +238,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.lightGray,
+  },
+  darkContainer: {
+    backgroundColor: COLORS.darkBackground,
+  },
+  darkCard: {
+    backgroundColor: COLORS.darkSurface,
+  },
+  darkDescription: {
+    color: COLORS.gray,
   },
   scrollContent: {
     padding: SIZES.md,
@@ -259,6 +268,9 @@ const styles = StyleSheet.create({
   },
   headerRight: {
     alignItems: 'flex-end',
+  },
+  darkText: {
+    color: COLORS.darkText,
   },
   currentTime: {
     fontSize: FONTS.h4,
