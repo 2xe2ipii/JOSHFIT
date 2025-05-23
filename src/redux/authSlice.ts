@@ -10,21 +10,58 @@ export const login = createAsyncThunk(
       // Simulating API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock response
-      const user = {
-        id: '1',
-        email: credentials.email,
-        nickname: 'JoshFit User',
-        gender: 'male' as const,
-        height: 175,
-        weight: 70,
-        bodyType: 'mesomorph' as const,
-        fitnessGoal: 'gain_muscle' as const,
-        role: UserRole.REGULAR,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
+      // STRICTLY CHECK ADMIN LOGIN
+      if (credentials.email === 'admin@joshfit.com' && credentials.password === 'admin123') {
+        // Return admin user
+        const adminUser = {
+          id: 'admin1',
+          email: credentials.email,
+          nickname: 'Admin',
+          gender: 'other' as const,
+          height: 175,
+          weight: 70,
+          bodyType: 'mesomorph' as const,
+          fitnessGoal: 'maintain' as const,
+          role: UserRole.ADMIN,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        
+        const token = 'admin-jwt-token';
+        
+        // Store in AsyncStorage
+        await AsyncStorage.setItem('user', JSON.stringify(adminUser));
+        await AsyncStorage.setItem('token', token);
+        
+        return { user: adminUser, token };
+      }
       
+      // FIRST - CLEAR ANY EXISTING USER SESSION DATA
+      // This ensures we're not accidentally using stale data
+      await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem('token');
+      
+      // STRICTLY CHECK USER LIST
+      const allUsersJson = await AsyncStorage.getItem('allUsers');
+      let allUsers: User[] = [];
+      
+      if (!allUsersJson) {
+        // No users exist in the system
+        return rejectWithValue('Account not found. Please register to create an account.');
+      }
+      
+      allUsers = JSON.parse(allUsersJson);
+      // Find the user with matching email - STRICT CHECK
+      const foundUser = allUsers.find(u => u.email === credentials.email);
+      
+      // If no user found with this email, reject login - STRICT REQUIREMENT
+      if (!foundUser) {
+        // This email doesn't exist in our user list
+        return rejectWithValue('Account not found. Please register to create an account.');
+      }
+      
+      // User found, proceed with login
+      const user = foundUser;
       const token = 'mock-jwt-token';
       
       // Store in AsyncStorage
@@ -45,7 +82,7 @@ export const register = createAsyncThunk(
       // Simulating API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock response
+      // Create new user object
       const user: User = {
         id: Math.random().toString(36).substr(2, 9),
         email: userData.email || '',
@@ -55,14 +92,28 @@ export const register = createAsyncThunk(
         weight: userData.weight || 0,
         bodyType: userData.bodyType || 'mesomorph',
         fitnessGoal: userData.fitnessGoal || 'maintain',
-        role: UserRole.REGULAR, // Default role for new users
+        role: userData.role || UserRole.REGULAR, // Use provided role or default to REGULAR
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
       
       const token = 'mock-jwt-token';
       
-      // Store in AsyncStorage
+      // Get existing users from AsyncStorage
+      const allUsersJson = await AsyncStorage.getItem('allUsers');
+      let allUsers: User[] = [];
+      
+      if (allUsersJson) {
+        allUsers = JSON.parse(allUsersJson);
+      }
+      
+      // Add the new user to the list of all users
+      allUsers.push(user);
+      
+      // Save the updated user list back to AsyncStorage
+      await AsyncStorage.setItem('allUsers', JSON.stringify(allUsers));
+      
+      // Store current user in AsyncStorage
       await AsyncStorage.setItem('user', JSON.stringify(user));
       await AsyncStorage.setItem('token', token);
       
