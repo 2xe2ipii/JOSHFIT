@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { AdminState, User, UserRole } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 // Mock API calls for demonstration - In a real app, these would connect to a backend
 export const fetchAllUsers = createAsyncThunk(
   'admin/fetchAllUsers',
@@ -9,22 +8,18 @@ export const fetchAllUsers = createAsyncThunk(
     try {
       // Simulating API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Get the current user from AsyncStorage
       const currentUserJson = await AsyncStorage.getItem('user');
       let currentUser = null;
       if (currentUserJson) {
         currentUser = JSON.parse(currentUserJson);
       }
-      
       // Get all registered users from AsyncStorage
       const allUsersJson = await AsyncStorage.getItem('allUsers');
       let allUsers: User[] = [];
-      
       if (allUsersJson) {
         allUsers = JSON.parse(allUsersJson);
       }
-      
       // Make sure the current admin user is included in the list
       if (currentUser && currentUser.role === UserRole.ADMIN) {
         const adminExists = allUsers.some(user => user.id === currentUser.id);
@@ -32,7 +27,6 @@ export const fetchAllUsers = createAsyncThunk(
           allUsers.push(currentUser);
         }
       }
-      
       // If no users found, provide a default admin user for display
       if (allUsers.length === 0) {
         allUsers = [
@@ -51,50 +45,40 @@ export const fetchAllUsers = createAsyncThunk(
           }
         ];
       }
-      
       return allUsers;
     } catch (error) {
       return rejectWithValue('Failed to fetch users. Please try again.');
     }
   }
 );
-
 export const updateUserRole = createAsyncThunk(
   'admin/updateUserRole',
   async ({ userId, role }: { userId: string; role: UserRole }, { rejectWithValue, getState }) => {
     try {
       // Simulating API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Get current state
       const state = getState() as { admin: AdminState };
       const users = [...state.admin.users];
-      
       // Find user in Redux state
       const userIndex = users.findIndex(user => user.id === userId);
-      
       if (userIndex === -1) {
         return rejectWithValue('User not found');
       }
-      
       // Get user data
       const userToUpdate = users[userIndex];
       const userEmail = userToUpdate.email;
-      
       // Update user role in Redux state
       const updatedUser = {
         ...userToUpdate,
         role,
         updatedAt: new Date().toISOString()
       };
-      
       users[userIndex] = updatedUser;
-      
       // CRITICAL: Update the user in AsyncStorage 'allUsers' list
       const allUsersJson = await AsyncStorage.getItem('allUsers');
       if (allUsersJson) {
         let allUsers: User[] = JSON.parse(allUsersJson);
-        
         // Find and update all instances of this user (by ID and email)
         allUsers = allUsers.map(user => {
           if (user.id === userId || user.email === userEmail) {
@@ -106,11 +90,9 @@ export const updateUserRole = createAsyncThunk(
           }
           return user;
         });
-        
         // Save updated users list back to AsyncStorage
         await AsyncStorage.setItem('allUsers', JSON.stringify(allUsers));
       }
-      
       // Also update the current user data if this is the logged in user
       const currentUserJson = await AsyncStorage.getItem('user');
       if (currentUserJson) {
@@ -124,40 +106,32 @@ export const updateUserRole = createAsyncThunk(
           await AsyncStorage.setItem('user', JSON.stringify(updatedCurrentUser));
         }
       }
-      
       return users;
     } catch (error) {
       return rejectWithValue('Failed to update user role. Please try again.');
     }
   }
 );
-
 export const deleteUser = createAsyncThunk(
   'admin/deleteUser',
   async (userId: string, { rejectWithValue, getState }) => {
     try {
       // Simulating API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Get current users from Redux state
       const state = getState() as { admin: AdminState };
       const users = [...state.admin.users];
-      
       const filteredUsers = users.filter(user => user.id !== userId);
-      
       if (filteredUsers.length === users.length) {
         return rejectWithValue('User not found');
       }
-      
       // Find the user to be deleted
       const userToDelete = users.find(user => user.id === userId);
       if (!userToDelete) {
         return rejectWithValue('User not found');
       }
-      
       // Get the email of the user to be deleted
       const userEmail = userToDelete.email;
-      
       // 1. PURGE FROM allUsers IN ASYNC STORAGE
       const allUsersJson = await AsyncStorage.getItem('allUsers');
       if (allUsersJson) {
@@ -166,7 +140,6 @@ export const deleteUser = createAsyncThunk(
         allUsers = allUsers.filter(user => user.id !== userId && user.email !== userEmail);
         await AsyncStorage.setItem('allUsers', JSON.stringify(allUsers));
       }
-      
       // 2. CHECK IF THIS IS THE CURRENTLY LOGGED IN USER AND REMOVE FROM 'user' STORAGE
       const currentUserJson = await AsyncStorage.getItem('user');
       if (currentUserJson) {
@@ -177,26 +150,21 @@ export const deleteUser = createAsyncThunk(
           await AsyncStorage.removeItem('token');
         }
       }
-      
       // 3. ADDITIONAL CLEANUP - REMOVE ANY OTHER INSTANCES OF THIS USER
       // (In a real app, this would include cleanup of related data like workout plans, etc.)
-      
       // Remove any potential blacklist to allow re-registration
       await AsyncStorage.removeItem('deletedEmails');
-      
       return filteredUsers;
     } catch (error) {
       return rejectWithValue('Failed to delete user. Please try again.');
     }
   }
 );
-
 const initialState: AdminState = {
   users: [],
   isLoading: false,
   error: null
 };
-
 const adminSlice = createSlice({
   name: 'admin',
   initialState,
@@ -220,7 +188,6 @@ const adminSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
       // Update User Role
       .addCase(updateUserRole.pending, (state) => {
         state.isLoading = true;
@@ -234,7 +201,6 @@ const adminSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      
       // Delete User
       .addCase(deleteUser.pending, (state) => {
         state.isLoading = true;
@@ -250,6 +216,6 @@ const adminSlice = createSlice({
       });
   }
 });
-
 export const { clearError } = adminSlice.actions;
 export default adminSlice.reducer;
+

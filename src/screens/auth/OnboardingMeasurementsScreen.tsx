@@ -15,17 +15,13 @@ import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
 import Input from '../../components/Input';
-
 type OnboardingMeasurementsScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'OnboardingMeasurements'>;
 type OnboardingMeasurementsScreenRouteProp = RouteProp<AuthStackParamList, 'OnboardingMeasurements'>;
-
 const OnboardingMeasurementsScreen = () => {
   const navigation = useNavigation<OnboardingMeasurementsScreenNavigationProp>();
   const route = useRoute<OnboardingMeasurementsScreenRouteProp>();
-
   // Get data passed from previous screen
   const { email, password, nickname, gender } = route.params || {};
-
   // Height and weight
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
@@ -34,11 +30,9 @@ const OnboardingMeasurementsScreen = () => {
     height: '',
     weight: '',
   });
-
   const validateForm = () => {
     let isValid = true;
     const newErrors = { height: '', weight: '' };
-
     if (!height.trim()) {
       newErrors.height = 'Height is required';
       isValid = false;
@@ -46,7 +40,6 @@ const OnboardingMeasurementsScreen = () => {
       newErrors.height = 'Enter a valid height in cm (100-250)';
       isValid = false;
     }
-
     if (!weight.trim()) {
       newErrors.weight = 'Weight is required';
       isValid = false;
@@ -54,11 +47,9 @@ const OnboardingMeasurementsScreen = () => {
       newErrors.weight = 'Enter a valid weight in kg (30-250)';
       isValid = false;
     }
-
     setValidationErrors(newErrors);
     return isValid;
   };
-
   const handleContinue = () => {
     if (validateForm()) {
       // Navigate to next onboarding step with all collected data
@@ -73,7 +64,6 @@ const OnboardingMeasurementsScreen = () => {
       });
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -83,19 +73,16 @@ const OnboardingMeasurementsScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color={COLORS.black} />
         </TouchableOpacity>
-
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: '66%' }]} />
           </View>
           <Text style={styles.progressText}>Step 2 of 3</Text>
         </View>
-
         <Text style={styles.title}>Your measurements</Text>
         <Text style={styles.subtitle}>
           These help us calculate your ideal workout plan and track your progress
         </Text>
-
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Height & Weight</Text>
           <View style={styles.inputRow}>
@@ -123,7 +110,6 @@ const OnboardingMeasurementsScreen = () => {
             </View>
           </View>
         </View>
-
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>Body Type</Text>
           <View style={styles.bodyTypeContainer}>
@@ -158,7 +144,6 @@ const OnboardingMeasurementsScreen = () => {
                 Lean & Long
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.bodyTypeOption,
@@ -190,7 +175,6 @@ const OnboardingMeasurementsScreen = () => {
                 Athletic & Strong
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.bodyTypeOption,
@@ -224,7 +208,6 @@ const OnboardingMeasurementsScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.infoCard}>
           <Card>
             <View style={styles.infoCardContent}>
@@ -236,7 +219,6 @@ const OnboardingMeasurementsScreen = () => {
             </View>
           </Card>
         </View>
-
         <Button
           title="Continue"
           onPress={handleContinue}
@@ -246,7 +228,6 @@ const OnboardingMeasurementsScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -368,5 +349,5 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
 });
-
 export default OnboardingMeasurementsScreen;
+

@@ -15,12 +15,10 @@ import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Card from '../../components/Card';
-
 const SettingsScreen = () => {
   const dispatch = useDispatch();
   const { darkMode, notifications } = useSelector((state: RootState) => state.settings);
   const { user } = useSelector((state: RootState) => state.auth);
-  
   // Load settings from AsyncStorage on mount
   useEffect(() => {
     const loadSavedSettings = async () => {
@@ -34,18 +32,14 @@ const SettingsScreen = () => {
         console.error('Failed to load settings', error);
       }
     };
-    
     loadSavedSettings();
   }, [dispatch]);
-  
   const handleDarkModeToggle = () => {
     dispatch(toggleDarkMode());
   };
-  
   const handleNotificationsToggle = () => {
     dispatch(toggleNotifications());
   };
-  
   return (
     <SafeAreaView style={[styles.container, darkMode && styles.darkContainer]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -53,7 +47,6 @@ const SettingsScreen = () => {
           <Text style={[styles.sectionTitle, darkMode && styles.darkText]}>
             Appearance
           </Text>
-          
           <View style={styles.settingRow}>
             <View style={styles.settingInfo}>
               <Ionicons 
@@ -73,12 +66,10 @@ const SettingsScreen = () => {
             />
           </View>
         </Card>
-        
         <Card style={[styles.card, darkMode && styles.darkCard]}>
           <Text style={[styles.sectionTitle, darkMode && styles.darkText]}>
             Notifications
           </Text>
-          
           <View style={styles.settingRow}>
             <View style={styles.settingInfo}>
               <Ionicons 
@@ -97,22 +88,18 @@ const SettingsScreen = () => {
               thumbColor={notifications ? COLORS.primary : COLORS.white}
             />
           </View>
-          
           <Text style={[styles.description, darkMode && styles.darkDescription]}>
             Receive notifications for workout reminders and achievements
           </Text>
         </Card>
-        
         <Card style={[styles.card, darkMode && styles.darkCard]}>
           <Text style={[styles.sectionTitle, darkMode && styles.darkText]}>
             About
           </Text>
-          
           <View style={styles.infoRow}>
             <Text style={[styles.infoLabel, darkMode && styles.darkText]}>Version</Text>
             <Text style={[styles.infoValue, darkMode && styles.darkText]}>1.0.0</Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[styles.infoLabel, darkMode && styles.darkText]}>Account Type</Text>
             <Text style={[
@@ -126,12 +113,10 @@ const SettingsScreen = () => {
             </Text>
           </View>
         </Card>
-        
         <TouchableOpacity style={styles.supportButton}>
           <Ionicons name="help-circle-outline" size={20} color={COLORS.white} />
           <Text style={styles.supportButtonText}>Get Support</Text>
         </TouchableOpacity>
-        
         <View style={styles.footer}>
           <Text style={[styles.footerText, darkMode && styles.darkFooterText]}>
             © {new Date().getFullYear()} JOSHFIT Team
@@ -144,7 +129,6 @@ const SettingsScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -250,5 +234,5 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
   },
 });
-
 export default SettingsScreen;
+

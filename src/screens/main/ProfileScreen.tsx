@@ -3,12 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   Alert,
-  Platform,
-  StatusBar,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { updateUserProfile, logout } from '../../redux/authSlice';
@@ -18,13 +14,12 @@ import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
+import ScreenContainer from '../../components/ScreenContainer';
 import { UserRole } from '../../types';
 import FloatingUtilityTool from '../../components/FloatingUtilityTool';
-
 const ProfileScreen = () => {
   const dispatch = useAppDispatch();
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
-  
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname || '');
   const [height, setHeight] = useState(user?.height.toString() || '');
@@ -32,45 +27,36 @@ const ProfileScreen = () => {
   const [bodyType, setBodyType] = useState(user?.bodyType || 'mesomorph');
   const [fitnessGoal, setFitnessGoal] = useState(user?.fitnessGoal || 'maintain');
   const { darkMode } = useSelector((state: RootState) => state.settings);
-  
   const calculateBMI = () => {
     if (!user) return '-';
-    
     const heightInMeters = user.height / 100;
     const bmi = user.weight / (heightInMeters * heightInMeters);
     return bmi.toFixed(1);
   };
-  
   const getBMICategory = () => {
     const bmi = parseFloat(calculateBMI());
-    
     if (bmi < 18.5) return 'Underweight';
     if (bmi < 25) return 'Normal';
     if (bmi < 30) return 'Overweight';
     return 'Obese';
   };
-  
   const handleSaveProfile = () => {
     if (!user) return;
-    
     // Validate inputs
     if (!nickname.trim()) {
       Alert.alert('Error', 'Nickname is required');
       return;
     }
-    
     const heightNum = parseFloat(height);
     if (isNaN(heightNum) || heightNum < 100 || heightNum > 250) {
       Alert.alert('Error', 'Please enter a valid height in cm (100-250)');
       return;
     }
-    
     const weightNum = parseFloat(weight);
     if (isNaN(weightNum) || weightNum < 30 || weightNum > 250) {
       Alert.alert('Error', 'Please enter a valid weight in kg (30-250)');
       return;
     }
-    
     dispatch(updateUserProfile({
       nickname,
       height: heightNum,
@@ -78,10 +64,8 @@ const ProfileScreen = () => {
       bodyType,
       fitnessGoal,
     }));
-    
     setIsEditing(false);
   };
-  
   const handleLogout = () => {
     Alert.alert(
       'Logout',
@@ -98,10 +82,8 @@ const ProfileScreen = () => {
       ]
     );
   };
-  
   const renderUserRoleBadge = () => {
     let badgeColor, textColor;
-    
     switch(user?.role) {
       case UserRole.ADMIN:
         badgeColor = COLORS.error;
@@ -116,7 +98,6 @@ const ProfileScreen = () => {
         badgeColor = COLORS.primaryLight;
         textColor = COLORS.primary;
     }
-    
     return (
       <View style={[styles.roleBadge, { backgroundColor: badgeColor }]}>
         <Text style={[styles.roleText, { color: textColor }]}>
@@ -125,13 +106,10 @@ const ProfileScreen = () => {
       </View>
     );
   };
-
-  // Calculate top padding for Android if SafeAreaView inset is 0
-  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
-  
+  // No longer need to calculate top padding as it's handled by ScreenContainer
   if (!user) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
+      <ScreenContainer style={styles.container} scrollable={false}>
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>User not found</Text>
           <Button
@@ -140,16 +118,13 @@ const ProfileScreen = () => {
             style={styles.logoutButton}
           />
         </View>
-      </SafeAreaView>
+      </ScreenContainer>
     );
   }
-  
   return (
-    <SafeAreaView style={[
-      styles.container,
-      darkMode && styles.darkContainer,
-      { paddingTop: topPadding }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <ScreenContainer 
+      style={darkMode ? {...styles.container, ...styles.darkContainer} : styles.container}
+      contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <Text style={[
             styles.title,
@@ -168,7 +143,6 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           )}
         </View>
-        
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>
@@ -193,7 +167,6 @@ const ProfileScreen = () => {
             ]}>{user.email}</Text>
           {renderUserRoleBadge()}
         </View>
-        
         <Card style={[
           styles.infoCard,
           darkMode && styles.darkCard
@@ -202,7 +175,6 @@ const ProfileScreen = () => {
             styles.sectionTitle,
             darkMode && styles.darkText
             ]}>Personal Information</Text>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
@@ -215,7 +187,6 @@ const ProfileScreen = () => {
               {user.gender === 'male' ? 'Male' : user.gender === 'female' ? 'Female' : 'Other'}
             </Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
@@ -236,7 +207,6 @@ const ProfileScreen = () => {
               ]}>{user.height} cm</Text>
             )}
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
@@ -257,7 +227,6 @@ const ProfileScreen = () => {
               ]}>{user.weight} kg</Text>
             )}
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
@@ -270,7 +239,6 @@ const ProfileScreen = () => {
               {calculateBMI()} ({getBMICategory()})
             </Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
@@ -336,7 +304,6 @@ const ProfileScreen = () => {
               </Text>
             )}
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
@@ -424,13 +391,11 @@ const ProfileScreen = () => {
               </Text>
             )}
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={[
               styles.infoLabel,
               darkMode && styles.darkText
               ]}>Member Since</Text>
-
             <Text style={[
               styles.infoValue,
               darkMode && styles.darkDescription
@@ -438,7 +403,6 @@ const ProfileScreen = () => {
               {new Date(user.createdAt).toLocaleDateString()}
             </Text>
           </View>
-          
           {isEditing && (
             <View style={styles.editActions}>
               <Button
@@ -463,7 +427,6 @@ const ProfileScreen = () => {
             </View>
           )}
         </Card>
-        
         <Button
           title="Logout"
           onPress={handleLogout}
@@ -471,13 +434,10 @@ const ProfileScreen = () => {
           style={styles.logoutButton}
           textStyle={styles.logoutButtonText}
         />
-      </ScrollView>
-      
       <FloatingUtilityTool />
-    </SafeAreaView>
+    </ScreenContainer>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -667,5 +627,5 @@ const styles = StyleSheet.create({
     marginBottom: SIZES.lg,
   },
 });
-
 export default ProfileScreen;
+

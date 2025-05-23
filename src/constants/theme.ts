@@ -3,35 +3,29 @@ export const COLORS = {
   primary: '#4CAF50',
   primaryDark: '#388E3C',
   primaryLight: '#C8E6C9',
-  
   // Accent
   accent: '#FF5722',
-  
   // Neutrals
   white: '#FFFFFF',
   black: '#000000',
   lightGray: '#F5F5F5',
   gray: '#9E9E9E',
   darkGray: '#616161',
-  
   // Status
   success: '#4CAF50',
   error: '#F44336',
   warning: '#FFC107',
   info: '#2196F3',
-  
   // Dark mode
   darkBackground: '#121212',
   darkSurface: '#1E1E1E',
   darkText: '#FFFFFF',
   darkBorder: '#333333',
 };
-
 export const FONTS = {
   regular: 'System',
   medium: 'System',
   bold: 'System',
-  
   // Font sizes
   h1: 28,
   h2: 24,
@@ -42,7 +36,6 @@ export const FONTS = {
   small: 12,
   tiny: 10,
 };
-
 export const SIZES = {
   // Padding/Margin
   xs: 4,
@@ -51,18 +44,15 @@ export const SIZES = {
   lg: 24,
   xl: 32,
   xxl: 40,
-  
   // Border radius
   borderRadiusSm: 4,
   borderRadiusMd: 8,
   borderRadiusLg: 16,
   borderRadiusXl: 24,
-  
   // Screen dimensions
   width: 0, // To be set dynamically
   height: 0, // To be set dynamically
 };
-
 export const SHADOWS = {
   small: {
     shadowColor: COLORS.black,
@@ -95,3 +85,4 @@ export const SHADOWS = {
     elevation: 8,
   },
 };
+

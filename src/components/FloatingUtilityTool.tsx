@@ -12,39 +12,31 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SHADOWS, SIZES } from '../constants/theme';
 import DraggableView from './DraggableView';
-
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
-
 type UtilityMode = 'clock' | 'timer' | 'stopwatch';
-
 const { width, height } = Dimensions.get('window');
-
 const FloatingUtilityTool: React.FC = () => {
   const [mode, setMode] = useState<UtilityMode>('clock');
   const [expanded, setExpanded] = useState(false);
   const [time, setTime] = useState('00:00:00');
-    // Stopwatch state
+  // Stopwatch state
   const [isRunning, setIsRunning] = useState(false);
   const [stopwatchTime, setStopwatchTime] = useState(0);
-  const [milliseconds, setMilliseconds] = useState(0);
-  
   // Timer state
   const [timerMinutes, setTimerMinutes] = useState(0);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerIsRunning, setTimerIsRunning] = useState(false);
   const [timerTotalSeconds, setTimerTotalSeconds] = useState(0);
   // Format time for display
-  const formatTime = (totalSeconds: number, ms: number = 0, includeMs: boolean = false): string => {
+  const formatTime = (totalSeconds: number): string => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    const baseTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    return includeMs ? `${baseTime}.${ms.toString().padStart(3, '0')}` : baseTime;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
-
   // Clock mode
   useEffect(() => {
     if (mode === 'clock') {
@@ -59,33 +51,18 @@ const FloatingUtilityTool: React.FC = () => {
     }
   }, [mode]);
   useEffect(() => {
-    let intervalMs: NodeJS.Timeout;
-    let intervalSec: NodeJS.Timeout;
-    
+    let interval: NodeJS.Timeout;
     if (mode === 'stopwatch' && isRunning) {
-      intervalMs = setInterval(() => {
-        setMilliseconds(prev => {
-          if (prev >= 999) {
-            return 0;
-          }
-          return prev + 10;
-        });
-      }, 10);
-
-      intervalSec = setInterval(() => {
+      interval = setInterval(() => {
         setStopwatchTime(prev => prev + 1);
       }, 1000);
     }
-    
     return () => {
-      if (intervalMs) clearInterval(intervalMs);
-      if (intervalSec) clearInterval(intervalSec);
+      if (interval) clearInterval(interval);
     };
   }, [mode, isRunning]);
-
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
     if (mode === 'timer' && timerIsRunning && timerTotalSeconds > 0) {
       interval = setInterval(() => {
         setTimerTotalSeconds(prev => {
@@ -97,19 +74,17 @@ const FloatingUtilityTool: React.FC = () => {
         });
       }, 1000);
     }
-    
     return () => {
       if (interval) clearInterval(interval);
     };
   }, [mode, timerIsRunning, timerTotalSeconds]);
   useEffect(() => {
     if (mode === 'stopwatch') {
-      setTime(formatTime(stopwatchTime, milliseconds, true));
+      setTime(formatTime(stopwatchTime));
     } else if (mode === 'timer') {
       setTime(formatTime(timerTotalSeconds));
     }
-  }, [mode, stopwatchTime, milliseconds, timerTotalSeconds]);
-
+  }, [mode, stopwatchTime, timerTotalSeconds]);
   // Handle mode switching
   const switchMode = () => {
     if (mode === 'clock') {
@@ -126,7 +101,6 @@ const FloatingUtilityTool: React.FC = () => {
       setTimerSeconds(0);
     }
   };
-
   const handleStartStop = () => {
     if (mode === 'stopwatch') {
       setIsRunning(!isRunning);
@@ -145,14 +119,12 @@ const FloatingUtilityTool: React.FC = () => {
   const handleReset = () => {
     if (mode === 'stopwatch') {
       setStopwatchTime(0);
-      setMilliseconds(0);
       setIsRunning(false);
     } else if (mode === 'timer') {
       setTimerTotalSeconds(0);
       setTimerIsRunning(false);
     }
   };
-
   const incrementTimer = (type: 'minutes' | 'seconds') => {
     if (type === 'minutes') {
       setTimerMinutes(prev => (prev < 59 ? prev + 1 : 0));
@@ -160,7 +132,6 @@ const FloatingUtilityTool: React.FC = () => {
       setTimerSeconds(prev => (prev < 59 ? prev + 1 : 0));
     }
   };
-
   const decrementTimer = (type: 'minutes' | 'seconds') => {
     if (type === 'minutes') {
       setTimerMinutes(prev => (prev > 0 ? prev - 1 : 59));
@@ -168,7 +139,6 @@ const FloatingUtilityTool: React.FC = () => {
       setTimerSeconds(prev => (prev > 0 ? prev - 1 : 59));
     }
   };
-
   const handleExpand = () => {
     LayoutAnimation.configureNext({
       duration: 200,
@@ -179,7 +149,6 @@ const FloatingUtilityTool: React.FC = () => {
     });
     setExpanded(!expanded);
   };
-
   return (    <DraggableView
       initialPosition={{ x: width - 100, y: 100 }}
       maxX={width}
@@ -209,12 +178,14 @@ const FloatingUtilityTool: React.FC = () => {
                 color={COLORS.white} 
               />
               <Text style={styles.modeButtonText}>
-                {mode === 'clock' ? 'Clock' : mode === 'stopwatch' ? 'Stopwatch' : 'Timer'}
+                {mode === 'clock' 
+                  ? 'Clock' 
+                  : mode === 'stopwatch' 
+                  ? 'Stopwatch' 
+                  : 'Timer'}
               </Text>
             </TouchableOpacity>
-
             <Text style={styles.timeText}>{time}</Text>
-
             {mode !== 'clock' && (
               <View style={styles.controls}>
                 <TouchableOpacity
@@ -232,7 +203,6 @@ const FloatingUtilityTool: React.FC = () => {
                     color={COLORS.white}
                   />
                 </TouchableOpacity>
-
                 <TouchableOpacity
                   style={styles.controlButton}
                   onPress={handleReset}
@@ -241,7 +211,6 @@ const FloatingUtilityTool: React.FC = () => {
                 </TouchableOpacity>
               </View>
             )}
-
             {mode === 'timer' && !timerIsRunning && timerTotalSeconds === 0 && (
               <View style={styles.timerSettings}>
                 <View style={styles.timerControl}>
@@ -255,9 +224,7 @@ const FloatingUtilityTool: React.FC = () => {
                     <Ionicons name="chevron-down" size={24} color={COLORS.white} />
                   </TouchableOpacity>
                 </View>
-
                 <Text style={styles.timerSeparator}>:</Text>
-
                 <View style={styles.timerControl}>
                   <TouchableOpacity onPress={() => incrementTimer('seconds')}>
                     <Ionicons name="chevron-up" size={24} color={COLORS.white} />
@@ -289,18 +256,12 @@ const FloatingUtilityTool: React.FC = () => {
                 ? `${String(Math.floor(stopwatchTime / 60)).padStart(2, '0')}:${String(stopwatchTime % 60).padStart(2, '0')}`
                 : time.substring(0, 5)}
             </Text>
-            {mode === 'stopwatch' && isRunning && (
-              <Text style={styles.collapsedMilliseconds}>
-                .{milliseconds.toString().padStart(3, '0')}
-              </Text>
-            )}
           </View>
         )}
       </TouchableOpacity>
     </DraggableView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: COLORS.primary,
@@ -378,17 +339,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timerValue: {
-    color: COLORS.white,
     fontSize: FONTS.h4,
     fontWeight: 'bold',
-    marginVertical: 4,
+    color: COLORS.white,
+    textAlign: 'center',
   },
   timerSeparator: {
-    color: COLORS.white,
     fontSize: FONTS.h4,
     fontWeight: 'bold',
+    color: COLORS.white,
     marginHorizontal: 8,
   },
 });
-
 export default FloatingUtilityTool;
+

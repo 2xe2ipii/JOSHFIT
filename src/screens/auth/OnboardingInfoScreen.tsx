@@ -14,20 +14,15 @@ import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Button from '../../components/Button';
 import Card from '../../components/Card';
-
 type OnboardingInfoScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'OnboardingInfo'>;
 type OnboardingInfoScreenRouteProp = RouteProp<AuthStackParamList, 'OnboardingInfo'>;
-
 const OnboardingInfoScreen = () => {
   const navigation = useNavigation<OnboardingInfoScreenNavigationProp>();
   const route = useRoute<OnboardingInfoScreenRouteProp>();
-
   // Get data passed from register screen
   const { email, password, nickname } = route.params || {};
-
   // Gender selection
   const [gender, setGender] = useState<'male' | 'female' | 'other'>('male');
-
   const handleContinue = () => {
     // Navigate to next onboarding step with the collected data
     navigation.navigate('OnboardingMeasurements', {
@@ -37,7 +32,6 @@ const OnboardingInfoScreen = () => {
       gender,
     });
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -47,19 +41,16 @@ const OnboardingInfoScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color={COLORS.black} />
         </TouchableOpacity>
-
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: '33%' }]} />
           </View>
           <Text style={styles.progressText}>Step 1 of 3</Text>
         </View>
-
         <Text style={styles.title}>Tell us about yourself</Text>
         <Text style={styles.subtitle}>
           We'll use this information to create a personalized experience for you
         </Text>
-
         <View style={styles.formSection}>
           <Text style={styles.sectionTitle}>I am</Text>
           <View style={styles.genderSelection}>
@@ -84,7 +75,6 @@ const OnboardingInfoScreen = () => {
                 Male
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.genderOption,
@@ -106,7 +96,6 @@ const OnboardingInfoScreen = () => {
                 Female
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.genderOption,
@@ -130,7 +119,6 @@ const OnboardingInfoScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.infoCard}>
           <Card>
             <View style={styles.infoCardContent}>
@@ -141,7 +129,6 @@ const OnboardingInfoScreen = () => {
             </View>
           </Card>
         </View>
-
         <Button
           title="Continue"
           onPress={handleContinue}
@@ -151,7 +138,6 @@ const OnboardingInfoScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -252,5 +238,5 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
 });
-
 export default OnboardingInfoScreen;
+

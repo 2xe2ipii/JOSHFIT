@@ -6,16 +6,18 @@ import workoutReducer from './workoutSlice';
 import foodLogReducer from './foodLogSlice';
 import adminReducer from './adminSlice';
 import settingsReducer from './settingsSlice';
-
+import stepsReducer from './stepsSlice';
+import notificationsReducer from './notificationsSlice';
 const rootReducer = combineReducers({
   auth: authReducer,
   dashboard: dashboardReducer,
   workout: workoutReducer,
   foodLog: foodLogReducer,
   admin: adminReducer,
-  settings: settingsReducer
+  settings: settingsReducer,
+  steps: stepsReducer,
+  notifications: notificationsReducer
 });
-
 export const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
@@ -23,7 +25,7 @@ export const store = configureStore({
       serializableCheck: false,
     }),
 });
-
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export const useAppDispatch = () => useDispatch<AppDispatch>();
+

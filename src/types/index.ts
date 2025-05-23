@@ -3,7 +3,6 @@ export enum UserRole {
   PREMIUM = 'premium',
   ADMIN = 'admin'
 }
-
 export interface User {
   id: string;
   email: string;
@@ -17,7 +16,6 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface WorkoutPlan {
   id: string;
   userId: string;
@@ -25,7 +23,6 @@ export interface WorkoutPlan {
   date: string;
   completed: boolean;
 }
-
 export interface Exercise {
   id: string;
   name: string;
@@ -36,7 +33,6 @@ export interface Exercise {
   completed: boolean;
   imageUrl?: string;
 }
-
 export interface FoodLog {
   id: string;
   userId: string;
@@ -45,22 +41,20 @@ export interface FoodLog {
   servingSize: string;
   date: string;
 }
-
 export interface WeatherData {
   temperature: number;
   condition: string;
   icon: string;
   humidity: number;
   windSpeed: number;
+  location: string;
 }
-
 export interface AuthState {
   user: User | null;
   token: string | null;
   isLoading: boolean;
   error: string | null;
 }
-
 export interface DashboardState {
   steps: number;
   caloriesBurned: number;
@@ -69,31 +63,28 @@ export interface DashboardState {
   isLoading: boolean;
   error: string | null;
 }
-
 export interface WorkoutState {
   workoutPlan: WorkoutPlan | null;
   isLoading: boolean;
   error: string | null;
 }
-
 export interface FoodLogState {
   foodLogs: FoodLog[];
+  searchResults: any[]; // Will store Nutritionix food items
   isLoading: boolean;
+  isSearching: boolean;
   error: string | null;
 }
-
 export interface AdminState {
   users: User[];
   isLoading: boolean;
   error: string | null;
 }
-
 export interface AppSettings {
   darkMode: boolean;
   notifications: boolean;
   language: string;
 }
-
 export interface AppState {
   auth: AuthState;
   dashboard: DashboardState;
@@ -102,3 +93,4 @@ export interface AppState {
   admin: AdminState;
   settings: AppSettings;
 }
+

@@ -23,31 +23,24 @@ import Button from '../../components/Button';
 import { UserRole } from '../../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AnyAction } from 'redux';
-
 type UserDetailScreenRouteProp = RouteProp<AdminStackParamList, 'UserDetail'>;
 type UserDetailScreenNavigationProp = StackNavigationProp<AdminStackParamList, 'UserDetail'>;
-
 const UserDetailScreen = () => {
   const route = useRoute<UserDetailScreenRouteProp>();
   const navigation = useNavigation<UserDetailScreenNavigationProp>();
   const dispatch = useDispatch();
   const insets = useSafeAreaInsets();
-  
   const { userId } = route.params;
   const { users, isLoading } = useSelector((state: RootState) => state.admin);
-  
   const user = users.find(u => u.id === userId);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-
   // Calculate top padding for Android if SafeAreaView inset is 0
   const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
-  
   useEffect(() => {
     if (user) {
       setSelectedRole(user.role);
     }
   }, [user]);
-  
   const handleUpdateRole = () => {
     if (user && selectedRole && selectedRole !== user.role) {
       Alert.alert(
@@ -69,7 +62,6 @@ const UserDetailScreen = () => {
       );
     }
   };
-  
   const handleDeleteUser = () => {
     if (user) {
       Alert.alert(
@@ -92,7 +84,6 @@ const UserDetailScreen = () => {
       );
     }
   };
-  
   if (!user) {
     return (
       <SafeAreaView style={[styles.container, { paddingTop: topPadding }]} edges={["top"]}>
@@ -107,7 +98,6 @@ const UserDetailScreen = () => {
       </SafeAreaView>
     );
   }
-  
   return (
     <SafeAreaView style={[styles.container, { paddingTop: topPadding }]} edges={["top"]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -121,30 +111,24 @@ const UserDetailScreen = () => {
             <Text style={styles.roleText}>{user.role.toUpperCase()}</Text>
           </View>
         </View>
-        
         <Card style={styles.infoCard}>
           <Text style={styles.sectionTitle}>User Information</Text>
-          
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Gender</Text>
             <Text style={styles.infoValue}>{user.gender === 'male' ? 'Male' : user.gender === 'female' ? 'Female' : 'Other'}</Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Height</Text>
             <Text style={styles.infoValue}>{user.height} cm</Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Weight</Text>
             <Text style={styles.infoValue}>{user.weight} kg</Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Body Type</Text>
             <Text style={styles.infoValue}>{user.bodyType.charAt(0).toUpperCase() + user.bodyType.slice(1)}</Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Fitness Goal</Text>
             <Text style={styles.infoValue}>
@@ -153,19 +137,16 @@ const UserDetailScreen = () => {
                user.fitnessGoal === 'improve_endurance' ? 'Improve Endurance' : 'Maintain Fitness'}
             </Text>
           </View>
-          
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Joined</Text>
             <Text style={styles.infoValue}>{new Date(user.createdAt).toLocaleDateString()}</Text>
           </View>
         </Card>
-        
         <Card style={styles.roleCard}>
           <Text style={styles.sectionTitle}>Change User Role</Text>
           <Text style={styles.roleDescription}>
             Changing a user's role will affect their access to features within the app.
           </Text>
-          
           <View style={styles.roleOptions}>
             <TouchableOpacity
               style={[
@@ -191,7 +172,6 @@ const UserDetailScreen = () => {
                 Basic access to workouts
               </Text>
             </TouchableOpacity>
-            
             <TouchableOpacity
               style={[
                 styles.roleOption,
@@ -216,7 +196,6 @@ const UserDetailScreen = () => {
                 Full access including food logging
               </Text>
             </TouchableOpacity>
-            
             <TouchableOpacity
               style={[
                 styles.roleOption,
@@ -242,7 +221,6 @@ const UserDetailScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-          
           <Button
             title="Update Role"
             onPress={handleUpdateRole}
@@ -250,7 +228,6 @@ const UserDetailScreen = () => {
             style={styles.updateButton}
           />
         </Card>
-        
         <View style={styles.dangerZone}>
           <Text style={styles.dangerZoneTitle}>Danger Zone</Text>
           <Button
@@ -265,7 +242,6 @@ const UserDetailScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -410,5 +386,5 @@ const styles = StyleSheet.create({
     color: COLORS.error,
   },
 });
-
 export default UserDetailScreen;
+

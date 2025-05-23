@@ -6,9 +6,7 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
 interface Props {
   initialPosition?: { x: number; y: number };
   minX?: number;
@@ -18,7 +16,6 @@ interface Props {
   style?: ViewStyle;
   children: React.ReactNode;
 }
-
 const DraggableView: React.FC<Props> = ({
   initialPosition = { x: 0, y: 0 },
   minX = 0,
@@ -30,7 +27,6 @@ const DraggableView: React.FC<Props> = ({
 }) => {
   const [position] = useState(new Animated.ValueXY(initialPosition));
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -38,7 +34,6 @@ const DraggableView: React.FC<Props> = ({
       onPanResponderMove: (_, gesture) => {
         const newX = Math.max(minX, Math.min(maxX - dimensions.width, initialPosition.x + gesture.dx));
         const newY = Math.max(minY, Math.min(maxY - dimensions.height, initialPosition.y + gesture.dy));
-        
         position.setValue({
           x: newX,
           y: newY
@@ -47,14 +42,12 @@ const DraggableView: React.FC<Props> = ({
       onPanResponderRelease: (_, gesture) => {
         initialPosition.x += gesture.dx;
         initialPosition.y += gesture.dy;
-        
         // Keep within bounds
         initialPosition.x = Math.max(minX, Math.min(maxX - dimensions.width, initialPosition.x));
         initialPosition.y = Math.max(minY, Math.min(maxY - dimensions.height, initialPosition.y));
       },
     })
   ).current;
-
   return (
     <Animated.View
       {...panResponder.panHandlers}
@@ -75,11 +68,10 @@ const DraggableView: React.FC<Props> = ({
     </Animated.View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
   },
 });
-
 export default DraggableView;
+

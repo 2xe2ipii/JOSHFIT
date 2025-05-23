@@ -9,7 +9,6 @@ import {
   TextStyle
 } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
-
 interface ButtonProps {
   title: string;
   onPress: () => void;
@@ -20,7 +19,6 @@ interface ButtonProps {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
-
 const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
@@ -33,7 +31,6 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   const getButtonStyle = () => {
     let buttonStyle: StyleProp<ViewStyle> = {};
-    
     // Type styles
     switch (type) {
       case 'primary':
@@ -51,7 +48,6 @@ const Button: React.FC<ButtonProps> = ({
       default:
         buttonStyle = styles.primaryButton;
     }
-    
     // Size styles
     switch (size) {
       case 'small':
@@ -64,18 +60,14 @@ const Button: React.FC<ButtonProps> = ({
         // Medium is default, no additional styles needed
         break;
     }
-    
     // Disabled state
     if (disabled) {
       buttonStyle = { ...buttonStyle, ...styles.disabledButton };
     }
-    
     return buttonStyle;
   };
-  
   const getTextStyle = () => {
     let textStyleVar: StyleProp<TextStyle> = {};
-    
     // Type styles
     switch (type) {
       case 'primary':
@@ -93,7 +85,6 @@ const Button: React.FC<ButtonProps> = ({
       default:
         textStyleVar = styles.primaryText;
     }
-    
     // Size styles
     switch (size) {
       case 'small':
@@ -106,15 +97,12 @@ const Button: React.FC<ButtonProps> = ({
         // Medium is default, no additional styles needed
         break;
     }
-    
     // Disabled state
     if (disabled) {
       textStyleVar = { ...textStyleVar, ...styles.disabledText };
     }
-    
     return textStyleVar;
   };
-  
   return (
     <TouchableOpacity
       style={[styles.button, getButtonStyle(), style]}
@@ -135,7 +123,6 @@ const Button: React.FC<ButtonProps> = ({
     </TouchableOpacity>
   );
 };
-
 const styles = StyleSheet.create({
   button: {
     borderRadius: SIZES.borderRadiusMd,
@@ -206,5 +193,5 @@ const styles = StyleSheet.create({
     color: COLORS.gray,
   },
 });
-
 export default Button;
+

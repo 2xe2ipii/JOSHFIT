@@ -10,11 +10,11 @@ import {
   Platform,
   StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { AdminStackParamList } from '../../navigation/types';
+import { AdminStackParamList, RootStackParamList } from '../../navigation/types';
 import { useDispatch } from 'react-redux';
-import { register } from '../../redux/authSlice';
+import { createUserWithoutLogin } from '../../redux/authSlice';
 import { fetchAllUsers } from '../../redux/adminSlice';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,13 +22,13 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { UserRole } from '../../types';
 import { AnyAction } from 'redux';
-
-type AddUserScreenNavigationProp = StackNavigationProp<AdminStackParamList, 'AddUser'>;
-
+type AddUserScreenNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<AdminStackParamList, 'AddUser'>,
+  StackNavigationProp<RootStackParamList>
+>;
 const AddUserScreen = () => {
   const navigation = useNavigation<AddUserScreenNavigationProp>();
   const dispatch = useDispatch();
-
   const [email, setEmail] = useState('');
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +40,6 @@ const AddUserScreen = () => {
   const [fitnessGoal, setFitnessGoal] = useState<'lose_weight' | 'gain_muscle' | 'improve_endurance' | 'maintain'>('maintain');
   const [role, setRole] = useState<UserRole>(UserRole.REGULAR);
   const [isLoading, setIsLoading] = useState(false);
-  
   const [errors, setErrors] = useState({
     email: '',
     nickname: '',
@@ -49,10 +48,8 @@ const AddUserScreen = () => {
     height: '',
     weight: '',
   });
-
   // Calculate top padding for Android if SafeAreaView inset is 0
   const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
-
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
@@ -63,7 +60,6 @@ const AddUserScreen = () => {
       height: '',
       weight: '',
     };
-
     // Email validation
     if (!email.trim()) {
       newErrors.email = 'Email is required';
@@ -72,13 +68,11 @@ const AddUserScreen = () => {
       newErrors.email = 'Email is invalid';
       isValid = false;
     }
-
     // Nickname validation
     if (!nickname.trim()) {
       newErrors.nickname = 'Nickname is required';
       isValid = false;
     }
-
     // Password validation
     if (!password) {
       newErrors.password = 'Password is required';
@@ -87,13 +81,11 @@ const AddUserScreen = () => {
       newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
-
     // Confirm password validation
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
       isValid = false;
     }
-
     // Height validation
     if (!height.trim()) {
       newErrors.height = 'Height is required';
@@ -102,7 +94,6 @@ const AddUserScreen = () => {
       newErrors.height = 'Enter a valid height in cm (100-250)';
       isValid = false;
     }
-
     // Weight validation
     if (!weight.trim()) {
       newErrors.weight = 'Weight is required';
@@ -111,16 +102,14 @@ const AddUserScreen = () => {
       newErrors.weight = 'Enter a valid weight in kg (30-250)';
       isValid = false;
     }
-
     setErrors(newErrors);
     return isValid;
   };
-
   const handleAddUser = async () => {
     if (validateForm()) {
       setIsLoading(true);
       try {
-        await dispatch(register({
+        await dispatch(createUserWithoutLogin({
           email,
           password,
           nickname,
@@ -131,32 +120,27 @@ const AddUserScreen = () => {
           fitnessGoal,
           role,
         }) as unknown as AnyAction);
-        
         // Refresh the user list
         await dispatch(fetchAllUsers() as unknown as AnyAction);
-        
         Alert.alert(
           'Success',
-          'User added successfully',
+          'User account created successfully',
           [{ text: 'OK', onPress: () => navigation.goBack() }]
         );
       } catch (error) {
-        Alert.alert('Error', 'Failed to add user. Please try again.');
+        Alert.alert('Error', 'Failed to create user account. Please try again.');
       } finally {
         setIsLoading(false);
       }
     }
   };
-
   return (
     <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Add New User</Text>
         <Text style={styles.subtitle}>Enter user details to create a new account</Text>
-
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Information</Text>
-          
           <Input
             label="Email"
             placeholder="Enter email address"
@@ -166,7 +150,6 @@ const AddUserScreen = () => {
             error={errors.email}
             leftIcon={<Ionicons name="mail-outline" size={20} color={COLORS.gray} />}
           />
-          
           <Input
             label="Nickname"
             placeholder="Enter nickname"
@@ -175,7 +158,6 @@ const AddUserScreen = () => {
             error={errors.nickname}
             leftIcon={<Ionicons name="person-outline" size={20} color={COLORS.gray} />}
           />
-          
           <Input
             label="Password"
             placeholder="Enter password"
@@ -185,7 +167,6 @@ const AddUserScreen = () => {
             error={errors.password}
             leftIcon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.gray} />}
           />
-          
           <Input
             label="Confirm Password"
             placeholder="Confirm password"
@@ -196,10 +177,8 @@ const AddUserScreen = () => {
             leftIcon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.gray} />}
           />
         </View>
-
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personal Information</Text>
-          
           <Text style={styles.label}>Gender</Text>
           <View style={styles.genderSelection}>
             <TouchableOpacity
@@ -223,7 +202,6 @@ const AddUserScreen = () => {
                 Male
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.genderOption,
@@ -245,7 +223,6 @@ const AddUserScreen = () => {
                 Female
               </Text>
             </TouchableOpacity>
-
             <TouchableOpacity
               style={[
                 styles.genderOption,
@@ -268,7 +245,6 @@ const AddUserScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-          
           <View style={styles.inputRow}>
             <View style={styles.inputHalf}>
               <Input
@@ -293,7 +269,6 @@ const AddUserScreen = () => {
               />
             </View>
           </View>
-          
           <Text style={styles.label}>Body Type</Text>
           <View style={styles.optionsRow}>
             <TouchableOpacity
@@ -345,7 +320,6 @@ const AddUserScreen = () => {
               </Text>
             </TouchableOpacity>
           </View>
-          
           <Text style={styles.label}>Fitness Goal</Text>
           <View style={styles.goalOptions}>
             <TouchableOpacity
@@ -414,7 +388,6 @@ const AddUserScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Role</Text>
           <View style={styles.roleContainer}>
@@ -449,7 +422,6 @@ const AddUserScreen = () => {
                 Basic access to workouts and tracking features
               </Text>
             </TouchableOpacity>
-            
             <TouchableOpacity
               style={[
                 styles.roleOption,
@@ -481,7 +453,6 @@ const AddUserScreen = () => {
                 Full access including food and calorie logging features
               </Text>
             </TouchableOpacity>
-            
             <TouchableOpacity
               style={[
                 styles.roleOption,
@@ -515,7 +486,6 @@ const AddUserScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.buttonContainer}>
           <Button
             title="Create User"
@@ -534,7 +504,6 @@ const AddUserScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -702,5 +671,5 @@ const styles = StyleSheet.create({
     borderColor: COLORS.gray,
   },
 });
-
 export default AddUserScreen;
+

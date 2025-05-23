@@ -3,8 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
@@ -13,48 +11,45 @@ import {
   StatusBar,
 } from 'react-native';
 import { useSelector } from 'react-redux';
-import { fetchWorkoutPlan, updateExerciseCompletion } from '../../redux/workoutSlice';
+import { fetchWorkoutPlan, updateExerciseCompletion, generateNextDayWorkout } from '../../redux/workoutSlice';
 import { RootState, useAppDispatch } from '../../redux/store';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/Card';
-import FloatingUtilityTool from '../../components/FloatingUtilityTool';
+import ScreenContainer from '../../components/ScreenContainer';
 import { Exercise } from '../../types';
-import { State } from 'react-native-gesture-handler';
-
+import { getRandomQuote } from '../../data/motivationalQuotes';
 const WorkoutScreen = () => {
   const dispatch = useAppDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const { workoutPlan, isLoading, error } = useSelector((state: RootState) => state.workout);
   const [totalExercises, setTotalExercises] = useState(0);
   const [completedExercises, setCompletedExercises] = useState(0);
+  const [motivationalQuote, setMotivationalQuote] = useState({ quote: '', author: '' });
   const { darkMode } = useSelector((state: RootState) => state.settings);
-
-  // Calculate top padding for Android if SafeAreaView inset is 0
-  const topPadding = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
-
   useEffect(() => {
     if (user) {
       dispatch(fetchWorkoutPlan(user.id));
     }
   }, [dispatch, user]);
-
   useEffect(() => {
     if (workoutPlan) {
       setTotalExercises(workoutPlan.exercises.length);
-      setCompletedExercises(workoutPlan.exercises.filter(ex => ex.completed).length);
+      const completed = workoutPlan.exercises.filter(ex => ex.completed).length;
+      setCompletedExercises(completed);
+      // Set a new motivational quote when workout is completed
+      if (completed === workoutPlan.exercises.length && completed > 0) {
+        setMotivationalQuote(getRandomQuote());
+      }
     }
   }, [workoutPlan]);
-
   const handleToggleExercise = (exerciseId: string, completed: boolean) => {
     dispatch(updateExerciseCompletion({ exerciseId, completed }));
   };
-
   const calculateProgress = () => {
     if (totalExercises === 0) return 0;
     return (completedExercises / totalExercises) * 100;
   };
-
   const renderExerciseItem = ({ item }: { item: Exercise }) => {
     return (
       <Card style={[
@@ -87,18 +82,15 @@ const WorkoutScreen = () => {
             )}
           </TouchableOpacity>
         </View>
-
         <View style={styles.exerciseDetails}>
           <View style={styles.exerciseDetailItem}>
             <Ionicons name="repeat-outline" size={16} color={COLORS.primary} />
             <Text style={styles.detailText}>{item.sets} sets</Text>
           </View>
-
           <View style={styles.exerciseDetailItem}>
             <Ionicons name="fitness-outline" size={16} color={COLORS.primary} />
             <Text style={styles.detailText}>{item.reps} reps</Text>
           </View>
-
           <View style={styles.exerciseDetailItem}>
             <Ionicons name="time-outline" size={16} color={COLORS.primary} />
             <Text style={styles.detailText}>{item.restTime}s rest</Text>
@@ -107,7 +99,6 @@ const WorkoutScreen = () => {
       </Card>
     );
   };
-
   const renderEmptyState = () => {
     return (
       <View style={styles.emptyContainer}>
@@ -138,146 +129,198 @@ const WorkoutScreen = () => {
       </View>
     );
   };
-
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container,{ paddingTop: topPadding }]}>
-        <View style={[
-          styles.loadingContainer,
-          darkMode && styles.darkContainer
-          ]}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={[
-            styles.loadingText,
-            darkMode && styles.darkText
-          ]}>Loading your workout plan...</Text>
+      <View style={styles.mainContainer}>
+        {}
+        <View style={[styles.stickyHeader, darkMode && styles.darkStickyHeader]}>
+          <View style={styles.headerContent}>
+            <Text style={[
+              styles.title,
+              darkMode && styles.darkText
+            ]}>Today's Workout</Text>
+          </View>
         </View>
-      </SafeAreaView>
+        <ScreenContainer style={styles.container} scrollable={false}>
+          <View style={[
+            styles.loadingContainer,
+            darkMode && styles.darkContainer
+          ]}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={[
+              styles.loadingText,
+              darkMode && styles.darkText
+            ]}>Loading your workout plan...</Text>
+          </View>
+        </ScreenContainer>
+      </View>
     );
   }
-
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, { paddingTop: topPadding }]}>
-        <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
-          <Text style={styles.errorTitle}>Something went wrong</Text>
-          <Text style={styles.errorDescription}>{error}</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => {
-              if (user) {
-                dispatch(fetchWorkoutPlan(user.id));
-              }
-            }}
-          >
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
+      <View style={styles.mainContainer}>
+        {}
+        <View style={[styles.stickyHeader, darkMode && styles.darkStickyHeader]}>
+          <View style={styles.headerContent}>
+            <Text style={[
+              styles.title,
+              darkMode && styles.darkText
+            ]}>Today's Workout</Text>
+          </View>
         </View>
-      </SafeAreaView>
+        <ScreenContainer style={styles.container} scrollable={false}>
+          <View style={styles.errorContainer}>
+            <Ionicons name="alert-circle-outline" size={64} color={COLORS.error} />
+            <Text style={styles.errorTitle}>Something went wrong</Text>
+            <Text style={styles.errorDescription}>{error}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => {
+                if (user) {
+                  dispatch(fetchWorkoutPlan(user.id));
+                }
+              }}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        </ScreenContainer>
+      </View>
     );
   }
-
   return (
-    <SafeAreaView style={[
-    styles.container, 
-    darkMode && styles.darkContainer,
-    { paddingTop: topPadding }
-    ]}>
-
-      <View style={styles.header}>
-        <Text style={[
-        styles.title,
-        darkMode && styles.darkText
-        ]}>Today's Workout</Text>
+    <View style={styles.mainContainer}>
+      {}
+      <View style={[styles.stickyHeader, darkMode && styles.darkStickyHeader]}>
+        <View style={styles.headerContent}>
+          <Text style={[
+            styles.title,
+            darkMode && styles.darkText
+          ]}>Today's Workout</Text>
+        </View>
       </View>
-
-      {workoutPlan ? (
-        <>
-          <View style={styles.progressSection}>
-            <View style={styles.progressInfo}>
-              <Text style={[
-              styles.progressTitle,
-              darkMode && styles.darkText
-              ]}>Your Progress</Text>
-              <Text style={[
-              styles.progressStats,
-              darkMode && styles.darkDescription
-              ]}>
-                {completedExercises} of {totalExercises} exercises completed
-              </Text>
-            </View>
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBar}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${calculateProgress()}%` },
-                  ]}
-                />
+      {}
+      <ScreenContainer
+        style={styles.container}
+        scrollable={false}
+      >
+        {}
+        <View style={styles.contentPadding} />
+        {workoutPlan ? (
+          <>
+            {}
+            <View style={styles.progressSection}>
+              <View style={styles.progressInfo}>
+                <Text style={[
+                  styles.progressTitle,
+                  darkMode && styles.darkText
+                ]}>Your Progress</Text>
+                <Text style={[
+                  styles.progressStats,
+                  darkMode && styles.darkDescription
+                ]}>
+                  {completedExercises} of {totalExercises} exercises completed
+                </Text>
               </View>
-              <Text style={styles.progressPercentage}>
-                {calculateProgress().toFixed(0)}%
-              </Text>
+              <View style={styles.progressBarContainer}>
+                <View style={styles.progressBar}>
+                  <View
+                    style={[
+                      styles.progressFill,
+                      { width: `${calculateProgress()}%` },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressPercentage}>
+                  {calculateProgress().toFixed(0)}%
+                </Text>
+              </View>
             </View>
-          </View>
-
-          <FlatList
-            data={workoutPlan.exercises}
-            renderItem={renderExerciseItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.exerciseList}
-            showsVerticalScrollIndicator={false}
-          />
-
-          {workoutPlan.completed ? (
-            <View style={styles.completedContainer}>
-              <View style={styles.completedBadge}>
-                <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
-                <Text style={styles.completedText}>Workout Completed!</Text>
+            {}
+            <FlatList
+              data={workoutPlan.exercises}
+              renderItem={renderExerciseItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.exerciseList}
+              showsVerticalScrollIndicator={false}
+              ListFooterComponent={<View style={{ height: 100 }} />}
+            />
+          </>
+        ) : (
+          renderEmptyState()
+        )}
+        {}
+        {workoutPlan && workoutPlan.completed && (
+          <View style={styles.congratsOverlay}>
+            <View style={styles.congratsCard}>
+              <Ionicons name="trophy" size={60} color={COLORS.accent} />
+              <Text style={styles.congratsTitle}>Congratulations!</Text>
+              <Text style={styles.congratsSubtitle}>Workout Complete</Text>
+              <View style={styles.quoteContainer}>
+                <Text style={styles.quoteText}>"{motivationalQuote.quote}"</Text>
+                <Text style={styles.quoteAuthor}>- {motivationalQuote.author}</Text>
               </View>
               <TouchableOpacity
-                style={styles.newWorkoutButton}
+                style={styles.generateNextButton}
                 onPress={() => {
                   if (user) {
-                    Alert.alert('Generate Workout', 'Do you want to generate a new workout plan?', [
-                      {
-                        text: 'Cancel',
-                        style: 'cancel',
-                      },
-                      {
-                        text: 'Generate',
-                        onPress: () => dispatch(fetchWorkoutPlan(user.id)),
-                      },
-                    ]);
+                    dispatch(generateNextDayWorkout());
                   }
                 }}
               >
-                <Text style={styles.newWorkoutButtonText}>Generate New Workout</Text>
+                <Text style={styles.generateNextButtonText}>Generate Next Workout</Text>
               </TouchableOpacity>
             </View>
-          ) : null}
-        </>
-      ) : (
-        renderEmptyState()
-      )}
-
-      <FloatingUtilityTool />
-    </SafeAreaView>
+          </View>
+        )}
+      </ScreenContainer>
+    </View>
   );
 };
-
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
     backgroundColor: COLORS.lightGray,
   },
-  header: {
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.lightGray,
+    zIndex: 1,
+  },
+  contentContainer: {
+    padding: SIZES.md,
+    paddingTop: 0, // No top padding as we have the sticky header
+    paddingBottom: SIZES.xl, // Extra padding at the bottom for the floating utility tool
+  },
+  contentPadding: {
+    height: 90, // Height to account for the sticky header
+  },
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.lightGray,
+    paddingHorizontal: SIZES.md,
+    paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight ? StatusBar.currentHeight + 10 : 10,
+    paddingBottom: SIZES.md,
+    zIndex: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  darkStickyHeader: {
+    backgroundColor: COLORS.darkBackground,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: SIZES.xl,
-    paddingVertical: SIZES.lg,
   },
   title: {
     fontSize: FONTS.h2,
@@ -296,15 +339,6 @@ const styles = StyleSheet.create({
   darkText: {
     color: COLORS.darkText,
   },
-//  shareButton: {
-//    width: 40,
-//    height: 40,
-//    justifyContent: 'center',
-//   alignItems: 'center',
-//    borderRadius: 20,
-//    backgroundColor: COLORS.white,
-//    ...SHADOWS.small,
-//  },
   progressSection: {
     marginHorizontal: SIZES.xl,
     marginBottom: SIZES.lg,
@@ -393,19 +427,19 @@ const styles = StyleSheet.create({
   exerciseDetails: {
     flexDirection: 'row',
     marginTop: SIZES.md,
-    paddingTop: SIZES.md,
+    justifyContent: 'space-between',
+    paddingTop: SIZES.xs,
     borderTopWidth: 1,
-    borderTopColor: COLORS.lightGray,
+    borderTopColor: 'rgba(0,0,0,0.05)',
   },
   exerciseDetailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: SIZES.xl,
   },
   detailText: {
+    marginLeft: 4,
     fontSize: FONTS.small,
     color: COLORS.darkGray,
-    marginLeft: SIZES.xs,
   },
   emptyContainer: {
     flex: 1,
@@ -415,8 +449,8 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: FONTS.h3,
-    fontWeight: '600',
-    color: COLORS.black,
+    fontWeight: 'bold',
+    color: COLORS.darkGray,
     marginTop: SIZES.lg,
     marginBottom: SIZES.sm,
   },
@@ -427,21 +461,21 @@ const styles = StyleSheet.create({
     marginBottom: SIZES.xl,
   },
   generateButton: {
+    backgroundColor: COLORS.primary,
     paddingVertical: SIZES.md,
     paddingHorizontal: SIZES.xl,
-    backgroundColor: COLORS.primary,
-    borderRadius: SIZES.borderRadiusMd,
+    borderRadius: SIZES.md,
+    ...SHADOWS.medium,
   },
   generateButtonText: {
-    fontSize: FONTS.body,
-    fontWeight: '600',
     color: COLORS.white,
+    fontSize: FONTS.body,
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: SIZES.xl,
   },
   loadingText: {
     marginTop: SIZES.md,
@@ -455,8 +489,8 @@ const styles = StyleSheet.create({
     padding: SIZES.xl,
   },
   errorTitle: {
-    fontSize: FONTS.h4,
-    fontWeight: '600',
+    fontSize: FONTS.h3,
+    fontWeight: 'bold',
     color: COLORS.error,
     marginTop: SIZES.md,
     marginBottom: SIZES.sm,
@@ -465,56 +499,119 @@ const styles = StyleSheet.create({
     fontSize: FONTS.body,
     color: COLORS.darkGray,
     textAlign: 'center',
-    marginBottom: SIZES.lg,
+    marginBottom: SIZES.xl,
   },
   retryButton: {
+    backgroundColor: COLORS.primary,
     paddingVertical: SIZES.sm,
     paddingHorizontal: SIZES.lg,
-    backgroundColor: COLORS.primary,
-    borderRadius: SIZES.borderRadiusMd,
+    borderRadius: SIZES.md,
+    ...SHADOWS.small,
   },
   retryButtonText: {
-    fontSize: FONTS.body,
-    fontWeight: '600',
     color: COLORS.white,
+    fontSize: FONTS.body,
+    fontWeight: 'bold',
   },
   completedContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: SIZES.lg,
-    backgroundColor: COLORS.white,
-    borderTopLeftRadius: SIZES.borderRadiusLg,
-    borderTopRightRadius: SIZES.borderRadiusLg,
-    ...SHADOWS.large,
+    alignItems: 'center',
+    marginTop: SIZES.lg,
+    marginBottom: SIZES.xl,
+    paddingHorizontal: SIZES.xl,
   },
   completedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: COLORS.success,
-    borderRadius: SIZES.borderRadiusMd,
     paddingVertical: SIZES.sm,
-    marginBottom: SIZES.md,
+    paddingHorizontal: SIZES.lg,
+    borderRadius: SIZES.lg,
+    marginBottom: SIZES.lg,
   },
   completedText: {
-    fontSize: FONTS.h5,
-    fontWeight: '600',
     color: COLORS.white,
-    marginLeft: SIZES.sm,
+    fontSize: FONTS.body,
+    fontWeight: 'bold',
+    marginLeft: SIZES.xs,
   },
   newWorkoutButton: {
     backgroundColor: COLORS.primary,
-    borderRadius: SIZES.borderRadiusMd,
-    paddingVertical: SIZES.md,
-    alignItems: 'center',
+    paddingVertical: SIZES.sm,
+    paddingHorizontal: SIZES.md,
+    borderRadius: SIZES.md,
+    marginTop: SIZES.md,
+    ...SHADOWS.medium,
   },
   newWorkoutButtonText: {
-    fontSize: FONTS.body,
-    fontWeight: '600',
     color: COLORS.white,
+    fontSize: FONTS.body,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  congratsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+  },
+  congratsCard: {
+    backgroundColor: COLORS.white,
+    borderRadius: SIZES.lg,
+    padding: SIZES.xl,
+    width: '85%',
+    alignItems: 'center',
+    ...SHADOWS.large,
+  },
+  congratsTitle: {
+    fontSize: FONTS.h1,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+    marginTop: SIZES.md,
+  },
+  congratsSubtitle: {
+    fontSize: FONTS.h4,
+    color: COLORS.darkGray,
+    marginBottom: SIZES.lg,
+  },
+  quoteContainer: {
+    backgroundColor: COLORS.lightGray,
+    borderRadius: SIZES.md,
+    padding: SIZES.md,
+    marginVertical: SIZES.md,
+    width: '100%',
+  },
+  quoteText: {
+    fontSize: FONTS.body,
+    fontStyle: 'italic',
+    color: COLORS.darkGray,
+    textAlign: 'center',
+    marginBottom: SIZES.xs,
+  },
+  quoteAuthor: {
+    fontSize: FONTS.small,
+    color: COLORS.gray,
+    textAlign: 'right',
+  },
+  generateNextButton: {
+    backgroundColor: COLORS.accent,
+    paddingVertical: SIZES.sm,
+    paddingHorizontal: SIZES.lg,
+    borderRadius: SIZES.md,
+    marginTop: SIZES.lg,
+    width: '100%',
+    ...SHADOWS.medium,
+  },
+  generateNextButtonText: {
+    color: COLORS.white,
+    fontSize: FONTS.h5,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
-
 export default WorkoutScreen;
+

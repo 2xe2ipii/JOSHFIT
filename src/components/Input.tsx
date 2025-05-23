@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
-
 interface InputProps {
   label?: string;
   placeholder?: string;
@@ -30,7 +29,6 @@ interface InputProps {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
-
 const Input: React.FC<InputProps> = ({
   label,
   placeholder,
@@ -49,11 +47,9 @@ const Input: React.FC<InputProps> = ({
   rightIcon,
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
-
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
@@ -111,7 +107,6 @@ const Input: React.FC<InputProps> = ({
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     marginBottom: SIZES.md,
@@ -168,5 +163,5 @@ const styles = StyleSheet.create({
     marginTop: SIZES.xs,
   },
 });
-
 export default Input;
+

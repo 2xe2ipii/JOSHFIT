@@ -13,12 +13,9 @@ import { AuthStackParamList } from '../../navigation/types';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import Button from '../../components/Button';
-
 type WelcomeScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Welcome'>;
-
 const WelcomeScreen = () => {
   const navigation = useNavigation<WelcomeScreenNavigationProp>();
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -35,7 +32,6 @@ const WelcomeScreen = () => {
               <Text style={styles.logoText}>JOSHFIT</Text>
               <Text style={styles.tagline}>Your path to fitness consistency</Text>
             </View>
-            
             <View style={styles.buttonContainer}>
               <Button 
                 title="Get Started" 
@@ -59,7 +55,6 @@ const WelcomeScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -108,5 +103,5 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
 });
-
 export default WelcomeScreen;
+

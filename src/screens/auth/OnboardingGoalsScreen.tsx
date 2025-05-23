@@ -17,21 +17,16 @@ import Button from '../../components/Button';
 import { useDispatch } from 'react-redux';
 import { useAppDispatch } from '../../redux/store';
 import { register } from '../../redux/authSlice';
-
 type OnboardingGoalsScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'OnboardingGoals'>;
 type OnboardingGoalsScreenRouteProp = RouteProp<AuthStackParamList, 'OnboardingGoals'>;
-
 const OnboardingGoalsScreen = () => {
   const navigation = useNavigation<OnboardingGoalsScreenNavigationProp>();
   const route = useRoute<OnboardingGoalsScreenRouteProp>();
   const dispatch = useAppDispatch();
-
   // Get all data passed from previous screens
   const { email, password, nickname, gender, height, weight, bodyType } = route.params || {};
-
   // Fitness goal
   const [fitnessGoal, setFitnessGoal] = useState<'lose_weight' | 'gain_muscle' | 'improve_endurance' | 'maintain'>('maintain');
-
   // Ensure gender is one of the valid options for the User type
   const validateGender = (gender: string | undefined): 'male' | 'female' | 'other' | undefined => {
     if (gender === 'male' || gender === 'female' || gender === 'other') {
@@ -39,7 +34,6 @@ const OnboardingGoalsScreen = () => {
     }
     return 'other'; // Default value if invalid
   };
-
   // Ensure bodyType is one of the valid options for the User type
   const validateBodyType = (bodyType: string | undefined): 'ectomorph' | 'mesomorph' | 'endomorph' | undefined => {
     if (bodyType === 'ectomorph' || bodyType === 'mesomorph' || bodyType === 'endomorph') {
@@ -47,12 +41,10 @@ const OnboardingGoalsScreen = () => {
     }
     return 'mesomorph'; // Default value if invalid
   };
-
   // Ensure password is a string
   const validatePassword = (password: string | undefined): string => {
     return password || '';
   };
-
   const handleComplete = () => {
     // Register user with all collected data
     dispatch(register({
@@ -66,7 +58,6 @@ const OnboardingGoalsScreen = () => {
       fitnessGoal,
     }));
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -76,19 +67,16 @@ const OnboardingGoalsScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color={COLORS.black} />
         </TouchableOpacity>
-
         <View style={styles.progressContainer}>
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, { width: '100%' }]} />
           </View>
           <Text style={styles.progressText}>Step 3 of 3</Text>
         </View>
-
         <Text style={styles.title}>What's your goal?</Text>
         <Text style={styles.subtitle}>
           Select your primary fitness goal to get a workout plan tailored for you
         </Text>
-
         <View style={styles.goalsContainer}>
           <TouchableOpacity
             style={[
@@ -126,7 +114,6 @@ const OnboardingGoalsScreen = () => {
               <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
             )}
           </TouchableOpacity>
-
           <TouchableOpacity
             style={[
               styles.goalOption,
@@ -163,7 +150,6 @@ const OnboardingGoalsScreen = () => {
               <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
             )}
           </TouchableOpacity>
-
           <TouchableOpacity
             style={[
               styles.goalOption,
@@ -200,7 +186,6 @@ const OnboardingGoalsScreen = () => {
               <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
             )}
           </TouchableOpacity>
-
           <TouchableOpacity
             style={[
               styles.goalOption,
@@ -238,7 +223,6 @@ const OnboardingGoalsScreen = () => {
             )}
           </TouchableOpacity>
         </View>
-
         <View style={styles.noteContainer}>
           <Text style={styles.noteText}>
             Based on your selections, we'll create a personalized workout plan designed 
@@ -251,7 +235,6 @@ const OnboardingGoalsScreen = () => {
                   : 'maintaining fitness'}.
           </Text>
         </View>
-
         <Button
           title="Complete Setup"
           onPress={handleComplete}
@@ -261,7 +244,6 @@ const OnboardingGoalsScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -364,5 +346,5 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
 });
-
 export default OnboardingGoalsScreen;
+

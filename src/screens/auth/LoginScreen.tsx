@@ -20,25 +20,20 @@ import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
-
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const dispatch = useAppDispatch();
   const { isLoading, error } = useSelector((state: RootState) => state.auth);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [validationErrors, setValidationErrors] = useState({
     email: '',
     password: '',
   });
-
   const validateForm = () => {
     let isValid = true;
     const newErrors = { email: '', password: '' };
-
     // Email validation
     if (!email.trim()) {
       newErrors.email = 'Email is required';
@@ -47,7 +42,6 @@ const LoginScreen = () => {
       newErrors.email = 'Email is invalid';
       isValid = false;
     }
-
     // Password validation
     if (!password) {
       newErrors.password = 'Password is required';
@@ -56,17 +50,14 @@ const LoginScreen = () => {
       newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
-
     setValidationErrors(newErrors);
     return isValid;
   };
-
   const handleLogin = () => {
     if (validateForm()) {
       dispatch(login({ email, password }));
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -83,12 +74,10 @@ const LoginScreen = () => {
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.black} />
           </TouchableOpacity>
-
           <View style={styles.header}>
             <Text style={styles.title}>Welcome Back</Text>
             <Text style={styles.subtitle}>Sign in to continue your fitness journey</Text>
           </View>
-
           <View style={styles.form}>
             <Input
               label="Email"
@@ -99,7 +88,6 @@ const LoginScreen = () => {
               error={validationErrors.email}
               leftIcon={<Ionicons name="mail-outline" size={20} color={COLORS.gray} />}
             />
-
             <Input
               label="Password"
               placeholder="Enter your password"
@@ -109,24 +97,20 @@ const LoginScreen = () => {
               error={validationErrors.password}
               leftIcon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.gray} />}
             />
-
             <TouchableOpacity style={styles.forgotPassword}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
-
             {error && (
               <View style={styles.errorContainer}>
                 <Text style={styles.errorText}>{error}</Text>
               </View>
             )}
-
             <Button
               title="Sign In"
               onPress={handleLogin}
               loading={isLoading}
               style={styles.button}
             />
-
             <View style={styles.registerContainer}>
               <Text style={styles.registerText}>Don't have an account? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -139,7 +123,6 @@ const LoginScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -212,5 +195,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 export default LoginScreen;
+

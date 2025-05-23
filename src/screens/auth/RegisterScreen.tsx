@@ -16,12 +16,9 @@ import { COLORS, FONTS, SIZES } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-
 type RegisterScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Register'>;
-
 const RegisterScreen = () => {
   const navigation = useNavigation<RegisterScreenNavigationProp>();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -32,7 +29,6 @@ const RegisterScreen = () => {
     confirmPassword: '',
     nickname: ''
   });
-
   const validateForm = () => {
     let isValid = true;
     const newErrors = { 
@@ -41,13 +37,11 @@ const RegisterScreen = () => {
       confirmPassword: '', 
       nickname: '' 
     };
-
     // Nickname validation
     if (!nickname.trim()) {
       newErrors.nickname = 'Nickname is required';
       isValid = false;
     }
-
     // Email validation
     if (!email.trim()) {
       newErrors.email = 'Email is required';
@@ -56,7 +50,6 @@ const RegisterScreen = () => {
       newErrors.email = 'Email is invalid';
       isValid = false;
     }
-
     // Password validation
     if (!password) {
       newErrors.password = 'Password is required';
@@ -65,17 +58,14 @@ const RegisterScreen = () => {
       newErrors.password = 'Password must be at least 6 characters';
       isValid = false;
     }
-
     // Confirm password validation
     if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
       isValid = false;
     }
-
     setValidationErrors(newErrors);
     return isValid;
   };
-
   const handleRegister = () => {
     if (validateForm()) {
       // Move to onboarding step 1 with the basic user info
@@ -86,7 +76,6 @@ const RegisterScreen = () => {
       });
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -103,12 +92,10 @@ const RegisterScreen = () => {
           >
             <Ionicons name="arrow-back" size={24} color={COLORS.black} />
           </TouchableOpacity>
-
           <View style={styles.header}>
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>Sign up to start your fitness journey</Text>
           </View>
-
           <View style={styles.form}>
             <Input
               label="Nickname"
@@ -118,7 +105,6 @@ const RegisterScreen = () => {
               error={validationErrors.nickname}
               leftIcon={<Ionicons name="person-outline" size={20} color={COLORS.gray} />}
             />
-
             <Input
               label="Email"
               placeholder="Enter your email"
@@ -128,7 +114,6 @@ const RegisterScreen = () => {
               error={validationErrors.email}
               leftIcon={<Ionicons name="mail-outline" size={20} color={COLORS.gray} />}
             />
-
             <Input
               label="Password"
               placeholder="Enter your password"
@@ -138,7 +123,6 @@ const RegisterScreen = () => {
               error={validationErrors.password}
               leftIcon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.gray} />}
             />
-
             <Input
               label="Confirm Password"
               placeholder="Confirm your password"
@@ -148,13 +132,11 @@ const RegisterScreen = () => {
               error={validationErrors.confirmPassword}
               leftIcon={<Ionicons name="lock-closed-outline" size={20} color={COLORS.gray} />}
             />
-
             <Button
               title="Continue"
               onPress={handleRegister}
               style={styles.button}
             />
-
             <View style={styles.loginContainer}>
               <Text style={styles.loginText}>Already have an account? </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -167,7 +149,6 @@ const RegisterScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -222,5 +203,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 export default RegisterScreen;
+

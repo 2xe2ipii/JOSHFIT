@@ -5,33 +5,26 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../redux/store';
 import { checkAuth } from '../redux/authSlice';
 import { UserRole } from '../types';
-
 // Import navigators
 import AuthNavigator from './AuthNavigator';
 import MainTabNavigator from './MainTabNavigator';
 import AdminNavigator from './AdminNavigator';
 import SettingsScreen from '../screens/settings/SettingsScreen';
-
 // Import types
 import { RootStackParamList } from './types';
-
 const Stack = createStackNavigator<RootStackParamList>();
-
 const RootNavigator = () => {
   const dispatch = useAppDispatch();
   const { user, token, isLoading } = useSelector((state: RootState) => state.auth);
   const { darkMode } = useSelector((state: RootState) => state.settings);
-
   useEffect(() => {
     // Check if user is already authenticated
     dispatch(checkAuth());
   }, [dispatch]);
-
   if (isLoading) {
     // Display a loading screen
     return null;
   }
-
   return (
     <NavigationContainer
       theme={{
@@ -77,5 +70,5 @@ const RootNavigator = () => {
     </NavigationContainer>
   );
 };
-
 export default RootNavigator;
+

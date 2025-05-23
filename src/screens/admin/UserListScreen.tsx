@@ -5,34 +5,35 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  SafeAreaView,
   ActivityIndicator,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { AdminStackParamList } from '../../navigation/types';
-import { useDispatch, useSelector } from 'react-redux';
+import { AdminStackParamList, RootStackParamList } from '../../navigation/types';
+import { useSelector } from 'react-redux';
 import { fetchAllUsers, deleteUser } from '../../redux/adminSlice';
-import { RootState } from '../../redux/store';
+import { RootState, useAppDispatch } from '../../redux/store';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import { Ionicons } from '@expo/vector-icons';
+import ScreenContainer from '../../components/ScreenContainer';
 import { User, UserRole } from '../../types';
-
-type UserListScreenNavigationProp = StackNavigationProp<AdminStackParamList, 'UserList'>;
-
+type UserListScreenNavigationProp = CompositeNavigationProp<
+  StackNavigationProp<AdminStackParamList, 'UserList'>,
+  StackNavigationProp<RootStackParamList>
+>;
 const UserListScreen = () => {
   const navigation = useNavigation<UserListScreenNavigationProp>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { users, isLoading, error } = useSelector((state: RootState) => state.admin);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-
   useEffect(() => {
     // Fetch all users when the component mounts
     dispatch(fetchAllUsers());
   }, [dispatch]);
-
   useEffect(() => {
     // Filter users based on search query
     if (users) {
@@ -49,7 +50,6 @@ const UserListScreen = () => {
       }
     }
   }, [users, searchQuery]);
-
   const handleDeleteUser = (userId: string) => {
     Alert.alert(
       'Delete User',
@@ -69,7 +69,6 @@ const UserListScreen = () => {
       ]
     );
   };
-
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
       case UserRole.ADMIN:
@@ -81,14 +80,12 @@ const UserListScreen = () => {
         return { bg: COLORS.primaryLight, text: COLORS.primary };
     }
   };
-
   const renderUserItem = ({ item }: { item: User }) => {
     const roleColors = getRoleBadgeColor(item.role);
-
     return (
       <TouchableOpacity
         style={styles.userCard}
-        onPress={() => navigation.navigate('UserDetail', { userId: item.id })}
+        onPress={() => navigation.navigate('Admin', { screen: 'UserDetail', params: { userId: item.id } })}
       >
         <View style={styles.userInfo}>
           <View style={styles.avatarContainer}>
@@ -109,7 +106,7 @@ const UserListScreen = () => {
         <View style={styles.actions}>
           <TouchableOpacity
             style={[styles.actionButton, styles.editButton]}
-            onPress={() => navigation.navigate('UserDetail', { userId: item.id })}
+            onPress={() => navigation.navigate('Admin', { screen: 'UserDetail', params: { userId: item.id } })}
           >
             <Ionicons name="create-outline" size={20} color={COLORS.primary} />
           </TouchableOpacity>
@@ -123,13 +120,58 @@ const UserListScreen = () => {
       </TouchableOpacity>
     );
   };
-
+  // Render different content based on loading/error state
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      );
+    }
+    if (error) {
+      return (
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => dispatch(fetchAllUsers())}
+          >
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    if (filteredUsers.length === 0) {
+      return (
+        <View style={styles.centerContainer}>
+          <Ionicons name="people-outline" size={64} color={COLORS.lightGray} />
+          <Text style={styles.noUsersText}>No users found</Text>
+          <TouchableOpacity
+            style={styles.addUserButton}
+            onPress={() => navigation.navigate('Admin', { screen: 'AddUser' })}
+          >
+            <Text style={styles.addUserText}>Add New User</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return (
+      <FlatList
+        data={filteredUsers}
+        keyExtractor={(item) => item.id}
+        renderItem={renderUserItem}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+      />
+    );
+  };
   return (
-    <SafeAreaView style={styles.container}>
+    <ScreenContainer style={styles.container} scrollable={false}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate('AddUser')}
+          onPress={() => navigation.navigate('Admin', { screen: 'AddUser' })}
         >
           <Ionicons name="add" size={24} color={COLORS.white} />
         </TouchableOpacity>
@@ -140,45 +182,10 @@ const UserListScreen = () => {
           </TouchableOpacity>
         </View>
       </View>
-
-      {isLoading ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-        </View>
-      ) : error ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => dispatch(fetchAllUsers())}
-          >
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : filteredUsers.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <Ionicons name="people-outline" size={64} color={COLORS.lightGray} />
-          <Text style={styles.noUsersText}>No users found</Text>
-          <TouchableOpacity
-            style={styles.addUserButton}
-            onPress={() => navigation.navigate('AddUser')}
-          >
-            <Text style={styles.addUserText}>Add New User</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredUsers}
-          keyExtractor={(item) => item.id}
-          renderItem={renderUserItem}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </SafeAreaView>
+      {renderContent()}
+    </ScreenContainer>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -188,7 +195,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: SIZES.md,
-    paddingVertical: SIZES.sm,
+    paddingTop: Platform.OS === 'ios' ? 50 : StatusBar.currentHeight ? StatusBar.currentHeight + 15 : 25,
+    paddingBottom: SIZES.md,
+    marginBottom: SIZES.sm,
     backgroundColor: COLORS.white,
     ...SHADOWS.small,
   },
@@ -334,5 +343,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
 export default UserListScreen;
+

@@ -1,14 +1,11 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AdminStackParamList } from './types';
-
 // Import screens
 import UserListScreen from '../screens/admin/UserListScreen';
 import UserDetailScreen from '../screens/admin/UserDetailScreen';
 import AddUserScreen from '../screens/admin/AddUserScreen';
-
 const Stack = createStackNavigator<AdminStackParamList>();
-
 const AdminNavigator = () => {
   return (
     <Stack.Navigator
@@ -40,5 +37,5 @@ const AdminNavigator = () => {
     </Stack.Navigator>
   );
 };
-
 export default AdminNavigator;
+

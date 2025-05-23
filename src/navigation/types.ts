@@ -1,5 +1,4 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
-
 // Auth Stack
 export type AuthStackParamList = {
   Welcome: undefined;
@@ -17,22 +16,20 @@ export type AuthStackParamList = {
   } | undefined;
   OnboardingMeasurements: undefined;
 };
-
 // Main Tab Navigator
 export type MainTabParamList = {
   Dashboard: undefined;
   Workout: undefined;
+  'Manage Users': undefined;
   Food: undefined;
   Profile: undefined;
 };
-
 // Admin Stack
 export type AdminStackParamList = {
   UserList: undefined;
   UserDetail: { userId: string };
   AddUser: undefined;
 };
-
 // Root Navigator
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
@@ -40,10 +37,10 @@ export type RootStackParamList = {
   Admin: NavigatorScreenParams<AdminStackParamList>;
   Settings: undefined;
 };
-
 // Navigation global declaration
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}
   }
 }
+

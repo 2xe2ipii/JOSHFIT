@@ -7,14 +7,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { COLORS, SHADOWS, SIZES } from '../constants/theme';
-
 interface CardProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
   disabled?: boolean;
 }
-
 const Card: React.FC<CardProps> = ({
   children,
   style,
@@ -22,7 +20,6 @@ const Card: React.FC<CardProps> = ({
   disabled = false,
 }) => {
   const CardComponent = onPress ? TouchableOpacity : View;
-
   return (
     <CardComponent
       style={[styles.card, style]}
@@ -34,7 +31,6 @@ const Card: React.FC<CardProps> = ({
     </CardComponent>
   );
 };
-
 const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.white,
@@ -44,5 +40,5 @@ const styles = StyleSheet.create({
     ...SHADOWS.small,
   },
 });
-
 export default Card;
+
